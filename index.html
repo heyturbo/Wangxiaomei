@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机通灵增强事件</title>
+    <style>
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    max-width: 100%;
+    margin: 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+}
+
+h1, h2, h3 {
+    text-align: center;
+    color: #212529;
+}
+
+#game-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+}
+
+#character-info, #weapon-info-container, #action-container, #monster-container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#game-info, #player-info, #weapon-info, #weapon-select, #actions, #merchant, #monster-info {
+    margin-bottom: 20px;
+}
+
+button {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#message {
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+    margin-top: 20px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+li:hover {
+    background-color: #e9ecef;
+}
+
+li button {
+    background-color: #dc3545;
+}
+
+li button:hover {
+    background-color: #c82333;
+}
+
+#awaken-result {
+    text-align: center;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
+
+#awaken-panel {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#awaken-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+#merchant-container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+    </style>
+</head>
+<body>
+<h1>随机通灵增强事件</h1>
+<div id="game-container">
+    <div id="character-info">
+        <h2>角色信息</h2>
+        <div id="game-info">
+            <p>玩家：王小美</p>
+            <p>金币：<span id="gold">1000</span></p>
+            <p>战斗力：<span id="power">1230</span></p>
+        </div>
+        <div id="player-info">
+            <h3>人物属性</h3>
+            <p>攻击力：<span id="player-atk">120</span></p>
+            <p>生命值：<span id="player-hp">440</span></p>
+            <p>速度：<span id="player-spd">70</span></p>
+            <p>法力值：<span id="player-mp">200</span></p>
+            <p>防御力：<span id="player-def">110</span></p>
+        </div>
+    </div>
+    <div id="awaken-panel">
+        <h2>通灵面板</h2>
+        <div id="awaken-result"></div>
+        <div id="awaken-actions">
+            <button id="awaken">通灵</button>
+            <button id="save">保存</button>
+        </div>
+    </div>
+    <div id="weapon-info-container">
+        <h2>武器信息</h2>
+        <div id="weapon-info">
+            <h3>当前武器：<span id="current-weapon">木剑</span></h3>
+            <p>强壮：<span id="weapon-str">10</span></p>
+            <p>耐力：<span id="weapon-vit">10</span></p>
+            <p>敏捷：<span id="weapon-dex">10</span></p>
+            <p>智力：<span id="weapon-int">10</span></p>
+            <p>信仰：<span id="weapon-fai">10</span></p>
+        </div>
+        <div id="weapon-select">
+            <h3>选择武器</h3>
+            <ul id="weapon-list"></ul>
+        </div>
+    </div>
+    <div id="merchant-container">
+        <h2>商人</h2>
+        <button id="summon-merchant">召唤商人</button>
+        <div id="merchant" style="display: none;">
+            <h3>商人出售武器</h3>
+            <ul id="merchant-weapons"></ul>
+        </div>
+    </div>
+    <div id="monster-container">
+        <h2>怪物信息</h2>
+        <div id="monster-info">
+            <p>攻击力：<span id="monster-atk">50</span></p>
+            <p>生命值：<span id="monster-hp">200</span></p>
+            <p>速度：<span id="monster-spd">50</span></p>
+            <p>法力值：<span id="monster-mp">100</span></p>
+            <p>防御力：<span id="monster-def">50</span></p>
+            <p>战斗力：<span id="monster-power">2250</span></p>
+        </div>
+        <button id="challenge-monster">挑战怪物</button>
+    </div>
+</div>
+<div id="message"></div>
+
+    <script>
+        // 游戏初始数据
+const propNames = {
+    str: "强壮",
+    vit: "耐力",
+    dex: "敏捷",
+    int: "智力",
+    fai: "信仰"
+};
+        const player = {
+            name: "王小美",
+            gold: 1000,
+            weapons: ["木剑"],
+            currentWeapon: "木剑",
+            baseAtk: 100,
+            baseHp: 200,
+            baseSpd: 50,
+            baseMp: 100,
+            baseDef: 80
+        };
+
+const weapons = {
+    "木剑": { str: 10, vit: 10, dex: 10, int: 10, fai: 10, quality: "凡品", sellCount: 3 },
+    "望月仙剑": { str: 28, vit: 20, dex: 12, int: 20, fai: 20, quality: "上品", sellCount: 3 },
+    "穿云剑": { str: 15, vit: 10, dex: 10, int: 40, fai: 20, quality: "上品", sellCount: 3 },
+    "贪狼": { str: 90, vit: 20, dex: 20, int: 20, fai: 20, quality: "极品", sellCount: 3 },
+    "飞雪": { str: 15, vit: 25, dex: 12, int: 22, fai: 20, quality: "上品", sellCount: 3 },
+    "青玉白霜": { str: 18, vit: 40, dex: 10, int: 40, fai: 5, quality: "上品", sellCount: 3 },
+    "度尘": { str: 60, vit: 60, dex: 20, int: 20, fai: 60, quality: "极品", sellCount: 3 }
+};
+
+        // DOM元素
+        const goldEl = document.getElementById("gold");
+        const powerEl = document.getElementById("power");
+        const currentWeaponEl = document.getElementById("current-weapon");
+        const weaponStrEl = document.getElementById("weapon-str");
+        const weaponVitEl = document.getElementById("weapon-vit");
+        const weaponDexEl = document.getElementById("weapon-dex");
+        const weaponIntEl = document.getElementById("weapon-int");
+        const weaponFaiEl = document.getElementById("weapon-fai");
+        const playerAtkEl = document.getElementById("player-atk");
+        const playerHpEl = document.getElementById("player-hp");
+        const playerSpdEl = document.getElementById("player-spd");
+        const playerMpEl = document.getElementById("player-mp");
+        const playerDefEl = document.getElementById("player-def");
+        const awakenBtn = document.getElementById("awaken");
+        const saveBtn = document.getElementById("save");
+        const summonMerchantBtn = document.getElementById("summon-merchant");
+        const merchantEl = document.getElementById("merchant");
+        const merchantWeaponsEl = document.getElementById("merchant-weapons");
+        const messageEl = document.getElementById("message");
+
+        // 更新显示
+        function updateDisplay() {
+            goldEl.textContent = player.gold;
+            currentWeaponEl.textContent = player.currentWeapon;
+            weaponStrEl.textContent = weapons[player.currentWeapon].str;
+            weaponVitEl.textContent = weapons[player.currentWeapon].vit;
+            weaponDexEl.textContent = weapons[player.currentWeapon].dex;
+            weaponIntEl.textContent = weapons[player.currentWeapon].int;
+            weaponFaiEl.textContent = weapons[player.currentWeapon].fai;
+            playerAtkEl.textContent = player.baseAtk + weapons[player.currentWeapon].str * 2;
+            playerHpEl.textContent = player.baseHp + weapons[player.currentWeapon].vit * 24;
+            playerSpdEl.textContent = player.baseSpd + weapons[player.currentWeapon].dex * 2;
+            playerMpEl.textContent = player.baseMp + weapons[player.currentWeapon].int * 10;
+            playerDefEl.textContent = player.baseDef + weapons[player.currentWeapon].fai * 3;
+            powerEl.textContent = (player.baseAtk + weapons[player.currentWeapon].str * 2 +
+                                   player.baseHp + weapons[player.currentWeapon].vit * 24 +
+                                   player.baseSpd + weapons[player.currentWeapon].dex * 2 +
+                                   player.baseMp + weapons[player.currentWeapon].int * 10 +
+                                   player.baseDef + weapons[player.currentWeapon].fai * 3) * 10;
+        }
+
+        // 通灵
+let awakenedProps = null;
+function awaken() {
+    if (player.gold < 20) {
+        messageEl.textContent = "金币不足,无法通灵!";
+        return;
+    }
+    player.gold -= 20;
+    const numProps = weightedRandom({1: 14, 2: 14, 3: 34, 4: 24, 5: 14});
+    const props = {};
+    for (let i = 0; i < numProps; i++) {
+        const prop = randomProp();
+        const value = randomValue(prop);
+        props[prop] = value;
+    }
+    const weapon = weapons[player.currentWeapon];
+    const weaponBefore = { ...weapons[player.currentWeapon] };
+    const changes = Object.entries(props).map(([k, v]) => {
+        const change = v - weaponBefore[k];
+        const sign = change >= 0 ? '+' : '';
+        const color = change >= 0 ? 'red' : 'green';
+        return `<p style="text-align: center;"><span style="color: ${color}">${propNames[k]}${sign}${change}</span></p>`;
+    });
+    const awakenResult = document.getElementById("awaken-result");
+    awakenResult.innerHTML = `<h3 style="text-align: center;">通灵结果</h3>${changes.join("")}`;
+    if (Math.random() < 0.05) {
+        const bonus = Math.floor(Math.random() * 991) + 10;
+        player.gold += bonus;
+        awakenResult.innerHTML += `<p style="text-align: center;">鸿运当头,恭喜你获得${bonus}金币!</p>`;
+    }
+    updateDisplay();
+    awakenedProps = props; // 将通灵结果保存到一个全局变量中
+}
+
+// 保存通灵结果
+function save() {
+    const weapon = weapons[player.currentWeapon];
+    Object.assign(weapon, awakenedProps);
+    awakenedProps = null;
+    const awakenResult = document.getElementById("awaken-result");
+    awakenResult.textContent = "通灵结果已保存。";
+    updateDisplay();
+}
+
+        // 召唤商人
+function summonMerchant() {
+    if (player.gold < 100) {
+        messageEl.textContent = "金币不足,无法召唤商人!";
+        return;
+    }
+    player.gold -= 100;
+    goldEl.textContent = player.gold; // 添加这行代码
+    showMerchant();
+}
+
+        // 随机显示商人
+        function randomMerchant() {
+            if (Math.random() < 0.1) {
+                showMerchant();
+            }
+        }
+
+        // 显示商人
+function showMerchant() {
+    const numWeapons = Math.floor(Math.random() * 5) + 1;
+    const availableWeapons = Object.keys(weapons).filter(weapon => weapon !== "木剑" && !player.weapons.includes(weapon));
+    const merchantWeapons = [];
+
+    merchantWeaponsEl.innerHTML = "";
+
+    for (let i = 0; i < numWeapons; i++) {
+        if (availableWeapons.length === 0) break;
+        const index = Math.floor(Math.random() * availableWeapons.length);
+        const weapon = availableWeapons[index];
+        const quality = weapons[weapon].quality;
+        const priceRange = quality === "上品" ? [100, 1000] : [1000, 2000];
+        const price = Math.floor(Math.random() * (priceRange[1] - priceRange[0] + 1)) + priceRange[0];
+        const li = document.createElement("li");
+        li.textContent = `${weapon}（${quality}）- ${price}金币`;
+        li.addEventListener("click", () => buyWeapon(weapon, price));
+        merchantWeaponsEl.appendChild(li);
+        merchantWeapons.push(weapon);
+        availableWeapons.splice(index, 1);
+    }
+
+    merchantEl.style.display = "block";
+}
+
+        // 购买武器
+function buyWeapon(weaponName, price) {
+    if (player.gold < price) {
+        messageEl.textContent = "金币不足,无法购买武器!";
+        return;
+    }
+    if (player.weapons.length >= 3) {
+        messageEl.textContent = "武器数量已达上限,无法购买新武器!";
+        return;
+    }
+    player.gold -= price;
+    player.weapons.push(weaponName);
+    player.currentWeapon = weaponName;
+    messageEl.textContent = `成功购买武器：${weaponName}`;
+    merchantEl.style.display = "none";
+    updateWeaponInfo();
+    updateDisplay();
+}
+
+function updateWeaponInfo() {
+    const weapon = weapons[player.currentWeapon];
+    document.getElementById("current-weapon").textContent = player.currentWeapon;
+    document.getElementById("weapon-str").textContent = weapon.str;
+    document.getElementById("weapon-vit").textContent = weapon.vit;
+    document.getElementById("weapon-dex").textContent = weapon.dex;
+    document.getElementById("weapon-int").textContent = weapon.int;
+    document.getElementById("weapon-fai").textContent = weapon.fai;
+}
+
+        // 随机属性
+        function randomProp() {
+            const props = ["str", "vit", "dex", "int", "fai"];
+            return props[Math.floor(Math.random() * props.length)];
+        }
+
+        // 随机属性值
+function randomValue(prop) {
+    const qualityProbability = {
+        "凡品": [10, 30],
+        "上品": [20, 50],
+        "极品": [40, 80],
+        "玄品": [70, 120],
+        "神品": [100, 180]
+    };
+    const weapon = weapons[player.currentWeapon];
+    const [min, max] = qualityProbability[weapon.quality];
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+        // 加权随机数
+        function weightedRandom(weights) {
+            let totalWeight = 0;
+            for (const key in weights) {
+                totalWeight += weights[key];
+            }
+            const randomNum = Math.random() * totalWeight;
+            let weightSum = 0;
+            for (const key in weights) {
+                weightSum += weights[key];
+                if (randomNum <= weightSum) {
+                    return parseInt(key);
+                }
+            }
+        }
+
+        // 事件监听
+        awakenBtn.addEventListener("click", awaken);
+        saveBtn.addEventListener("click", save);
+        summonMerchantBtn.addEventListener("click", summonMerchant);
+
+// DOM元素
+const weaponListEl = document.getElementById("weapon-list");
+
+// 更新武器列表
+function updateWeaponList() {
+    weaponListEl.innerHTML = "";
+    player.weapons.forEach(weapon => {
+        if (weapons[weapon]) {
+            const li = document.createElement("li");
+            const sellBtn = document.createElement("button");
+            sellBtn.textContent = "出售";
+            sellBtn.addEventListener("click", () => sellWeapon(weapon));
+    sellBtn.addEventListener("mouseover", () => {
+        const value = calculateWeaponValue(weapon);
+        sellBtn.title = `您的这把武器的价值为${value}金币`;
+    });
+            li.textContent = weapon;
+            li.appendChild(sellBtn);
+            li.addEventListener("click", () => {
+                player.currentWeapon = weapon;
+                updateDisplay();
+                messageEl.textContent = `已切换到武器：${weapon}`;
+            });
+            weaponListEl.appendChild(li);
+        }
+    });
+}
+
+function calculateWeaponValue(weaponName) {
+    const weapon = weapons[weaponName];
+    return (weapon.str + weapon.vit + weapon.dex + weapon.int + weapon.fai) * 7;
+}
+
+function sellWeapon(weapon) {
+    const value = calculateWeaponValue(weapon);
+    const sellCount = weapons[weapon]?.sellCount || 3;
+    if (sellCount > 1) {
+        const price = Math.floor(value * (0.5 + Math.random() * 0.7));
+        const confirmed = confirm(`您的这把武器估值为${value}金币,在目前市场,目前最高出价为${price}金币,是否出售?这把武器还剩${sellCount - 1}次估价次数。`);
+        if (confirmed) {
+            player.gold += price;
+            removeWeapon(weapon);
+            messageEl.textContent = `成功出售武器：${weapon},获得${price}金币`;
+        }
+        weapons[weapon].sellCount--;
+    } else {
+        const price = Math.floor(value * 0.1);
+        const confirmed = confirm(`这把武器已经无人问津,强制一折回收,获得${price}金币`);
+        if (confirmed) {
+            player.gold += price;
+            removeWeapon(weapon);
+            messageEl.textContent = `这把武器已经无人问津,强制一折回收,获得${price}金币`;
+        }
+    }
+    updateWeaponList();
+    updateDisplay();
+}
+
+function removeWeapon(weaponName) {
+    const index = player.weapons.indexOf(weaponName);
+    if (index > -1) {
+        player.weapons.splice(index, 1);
+        if (player.currentWeapon === weaponName) {
+            player.currentWeapon = player.weapons[0] || "";
+            if (weapons[player.currentWeapon]) {
+                Object.keys(weapons[weaponName]).forEach(prop => {
+                    if (prop !== "quality" && prop !== "sellCount") {
+                        if (prop === "str") player.baseAtk -= weapons[weaponName][prop] * 2;
+                        else if (prop === "vit") player.baseHp -= weapons[weaponName][prop] * 24;
+                        else if (prop === "dex") player.baseSpd -= weapons[weaponName][prop] * 2;
+                        else if (prop === "int") player.baseMp -= weapons[weaponName][prop] * 10;
+                        else if (prop === "fai") player.baseDef -= weapons[weaponName][prop] * 3;
+                    }
+                });
+            }
+        }
+    }
+}
+
+// 初始化
+updateDisplay();
+updateWeaponList();
+setInterval(randomMerchant, 10000);
+
+let monster = {
+    atk: 50,
+    hp: 200,
+    spd: 50,
+    mp: 100,
+    def: 50
+};
+
+function refreshMonster() {
+    if (!isFighting) {
+        monster.atk = Math.floor(monster.atk * 1.05);
+        monster.hp = Math.floor(monster.hp * 1.05);
+        monster.spd = Math.floor(monster.spd * 1.05);
+        monster.mp = Math.floor(monster.mp * 1.05);
+        monster.def = Math.floor(monster.def * 1.05);
+        updateMonsterDisplay();
+    }
+}
+
+function updateMonsterDisplay() {
+    document.getElementById("monster-atk").textContent = monster.atk;
+    document.getElementById("monster-hp").textContent = monster.hp;
+    document.getElementById("monster-spd").textContent = monster.spd;
+    document.getElementById("monster-mp").textContent = monster.mp;
+    document.getElementById("monster-def").textContent = monster.def;
+    document.getElementById("monster-power").textContent = calculatePower(monster);
+}
+
+let isFighting = false;
+setInterval(refreshMonster, 30000);
+
+function challenge() {
+    isFighting = true;
+    const playerPower = calculatePower(player);
+    const monsterPower = calculatePower(monster);
+    const ratio = Math.random() * 2.5 + 0.5;
+    const n = Math.floor(monsterPower * ratio);
+    messageEl.textContent = `怪物战斗力范围: ${Math.floor(monsterPower * 0.5)} - ${Math.floor(monsterPower * 3)}, 本次战斗力: ${n}`;
+    if (playerPower > n) {
+        messageEl.textContent += ", 挑战成功!奖励300金币!";
+        player.gold += 300;
+        refreshMonster();
+    } else {
+        messageEl.textContent += ", 挑战失败!惩罚扣除100金币!";
+        player.gold = Math.max(0, player.gold - 100);
+            const m = (monster.atk - (player.baseDef + weapons[player.currentWeapon].fai * 3)) * (monster.spd - (player.baseSpd + weapons[player.currentWeapon].dex * 2));
+        if (m > 0) {
+            player.hp = Math.max(0, player.hp - m);
+            playerHpEl.textContent = `生命值：${player.hp}`;
+        }
+        const monsterContainerEl = document.getElementById("monster-container");
+        monsterContainerEl.style.backgroundColor = "red";
+        setTimeout(() => {
+            monsterContainerEl.style.backgroundColor = "";
+        }, 500);
+    }
+    goldEl.textContent = player.gold;
+    updateDisplay();
+    isFighting = false;
+}
+
+function calculatePower(entity) {
+    if (entity === player) {
+        return (player.baseAtk + weapons[player.currentWeapon].str * 2 +
+                player.baseHp + weapons[player.currentWeapon].vit * 24 +
+                player.baseSpd + weapons[player.currentWeapon].dex * 2 +
+                player.baseMp + weapons[player.currentWeapon].int * 10 +
+                player.baseDef + weapons[player.currentWeapon].fai * 3) * 10;
+    } else {
+        return (entity.atk + entity.hp + entity.spd + entity.mp + entity.def) * 10;
+    }
+}
+
+const challengeMonsterBtn = document.getElementById("challenge-monster");
+challengeMonsterBtn.addEventListener("click", challenge);
+
+// 在actions div中添加挑战按钮
+
+    </script>
+</body>
+</html>
