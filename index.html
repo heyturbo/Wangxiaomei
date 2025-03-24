@@ -3,366 +3,3254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>测试你是否是一个被人欣赏的表达者</title>
+    <title>致命白雪 - 交互式剧情游戏</title>
     <style>
-        * {
+        :root {
+            --primary-color: #b91c1c;
+            --secondary-color: #0c4a6e;
+            --bg-color: #0f0f0f;
+            --text-color: #e5e5e5;
+            --border-color: #333;
+            --highlight-color: #f97316;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
-
-        .container {
-            width: 100%;
-            max-width: 600px;
-            padding: 20px;
+        
+        #game-container {
+            max-width: 800px;
             margin: 0 auto;
+            padding: 20px;
+            flex: 1;
         }
-
-        .welcome-screen,
-        .question-screen,
-        .result-screen {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 500px;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            color: #2c3e50;
-            margin-bottom: 20px;
+        
+        header {
             text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 15px;
         }
-
-        .welcome-text {
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .title-emoji {
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+        
+        #story-container {
+            background-color: rgba(20, 20, 20, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
             margin-bottom: 20px;
-            font-size: 1rem;
-            color: #666;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
         }
-
-        .question {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            color: #2c3e50;
+        
+        #story-text {
+            line-height: 1.8;
+            text-align: justify;
         }
-
-        .options {
+        
+        #choices-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
-
-        .option {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
+        
+        .choice-btn {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.95rem;
+            text-align: left;
         }
-
-        .option:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
+        
+        .choice-btn:hover {
+            background-color: var(--highlight-color);
+            transform: translateY(-2px);
         }
-
-        .option.selected {
-            background: #4a90e2;
-            color: white;
-            border-color: #357abd;
+        
+        #status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: rgba(30, 30, 30, 0.8);
+            border-radius: 5px;
         }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #e9ecef;
-            border-radius: 3px;
-            margin: 20px 0;
-            overflow: hidden;
+        
+        #chapter-display {
+            font-weight: bold;
+            color: var(--highlight-color);
         }
-
-        .progress {
-            height: 100%;
-            background: #4a90e2;
-            transition: width 0.3s ease;
+        
+        #character-display {
+            font-weight: bold;
         }
-
-        .btn {
+        
+        .character {
+            font-weight: bold;
+        }
+        
+        .white-snow {
+            color: #ffffff;
+        }
+        
+        .blanca {
+            color: #9d174d;
+        }
+        
+        .roberto {
+            color: #0284c7;
+        }
+        
+        .alejandro {
+            color: #16a34a;
+        }
+        
+        .sebastian {
+            color: #ca8a04;
+        }
+        
+        .carlos {
+            color: #7c3aed;
+        }
+        
+        .julio {
+            color: #db2777;
+        }
+        
+        .diego {
+            color: #2563eb;
+        }
+        
+        .manuel {
+            color: #d97706;
+        }
+        
+        .location {
+            font-style: italic;
+            color: var(--highlight-color);
             display: block;
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            background: #4a90e2;
-            color: white;
-            font-size: 1rem;
+            margin: 10px 0;
+            border-left: 3px solid var(--highlight-color);
+            padding-left: 10px;
+        }
+        
+        .scene-transition {
+            text-align: center;
+            padding: 10px 0;
+            font-style: italic;
+            opacity: 0.8;
+        }
+        
+        #inventory-button {
+            background-color: #333;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background 0.3s ease;
-            margin-top: 20px;
+            margin-bottom: 10px;
         }
-
-        .btn:hover {
-            background: #357abd;
+        
+        #inventory {
+            display: none;
+            background-color: rgba(30, 30, 30, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
         }
-
-        .result-text {
-            font-size: 1rem;
-            line-height: 1.8;
-            color: #444;
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
+        
+        .item {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #444;
         }
-
-        .hidden {
+        
+        #timer-container {
+            text-align: center;
+            margin: 10px 0;
             display: none;
         }
-
-        @media (max-width: 480px) {
-            .container {
+        
+        #timer {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            #game-container {
                 padding: 10px;
             }
             
-            .welcome-screen,
-            .question-screen,
-            .result-screen {
-                padding: 20px;
-                margin: 10px;
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            #story-container {
+                max-height: 300px;
+                padding: 15px;
+            }
+            
+            .choice-btn {
+                padding: 10px 15px;
+            }
+        }
+        
+        .snow-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .snowflake {
+            position: absolute;
+            color: #fff;
+            opacity: 0.7;
+            font-size: 1.5em;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="welcome-screen">
-            <h1>测试你是否是一个被人欣赏的表达者</h1>
-            <p class="welcome-text">这个测试基于社会心理学和人际沟通理论设计，将帮助你了解自己的表达特质。测试包含10个问题，大约需要3-5分钟完成。准备好了吗？</p>
-            <button class="btn" onclick="startTest()">开始测试</button>
+    <div class="snow-effect" id="snow-container"></div>
+    
+    <div id="game-container">
+        <header>
+            <div class="title-emoji">❄️🔪</div>
+            <h1>致命白雪</h1>
+            <p>一场复仇与阴谋的旅程</p>
+        </header>
+        
+        <div id="status-bar">
+            <div id="chapter-display">序章</div>
+            <div id="character-display">玛利亚·布兰卡 👑❄️</div>
         </div>
-
-        <div class="question-screen hidden">
-            <div class="progress-bar">
-                <div class="progress"></div>
-            </div>
-            <p class="question"></p>
-            <div class="options"></div>
+        
+        <button id="inventory-button" onclick="toggleInventory()">📋 物品清单</button>
+        <div id="inventory"></div>
+        
+        <div id="timer-container">
+            <span>倒计时: </span><span id="timer">72:00:00</span>
         </div>
-
-        <div class="result-screen hidden">
-            <h1>测试结果</h1>
-            <div class="result-text"></div>
-            <button class="btn" onclick="restartTest()">重新测试</button>
+        
+        <div id="story-container">
+            <div id="story-text"></div>
         </div>
+        
+        <div id="choices-container"></div>
     </div>
-
+    
     <script>
-        const questions = [
-            {
-                question: "当你需要向他人表达一个重要观点时，你通常会：",
-                options: [
-                    { text: "直接表达核心内容，简明扼要", score: 3 },
-                    { text: "先铺垫背景，循序渐进地展开", score: 4 },
-                    { text: "根据对方的反应随机应变", score: 5 },
-                    { text: "准备充分的论据后才开始表达", score: 2 }
-                ]
+        // 游戏状态变量
+        let gameState = {
+            currentChapter: 0,
+            currentScene: 0,
+            inventory: [],
+            timerActive: false,
+            timerSeconds: 72 * 60 * 60, // 72小时，以秒为单位
+            decisions: {
+                trustSeven: false,
+                confrontedBlanca: false,
+                foundEvidence: false,
+                bombsDisarmed: 0,
+                brothersAlive: 7
             },
+            flags: {}
+        };
+        
+        // 游戏剧情内容
+        const chapters = [
             {
-                question: "在团队讨论中，当你发现自己的观点与他人不同时：",
-                options: [
-                    { text: "坚持己见，详细阐述自己的理由", score: 2 },
-                    { text: "先倾听对方，寻找共同点后再表达", score: 5 },
-                    { text: "尝试整合双方观点，提出新的解决方案", score: 4 },
-                    { text: "保持沉默，等待更多信息", score: 1 }
-                ]
-            },
-            {
-                question: "当你需要给予他人负面反馈时，你会：",
-                options: [
-                    { text: "直接指出问题，提供改进建议", score: 3 },
-                    { text: "先肯定优点，然后委婉提出建议", score: 5 },
-                    { text: "等待合适的时机再谈", score: 2 },
-                    { text: "通过比喻或例子间接表达", score: 4 }
-                ]
-            },
-            {
-                question: "在进行重要演讲或展示时，你最注重：",
-                options: [
-                    { text: "内容的逻辑性和完整性", score: 3 },
-                    { text: "与听众的互动和反馈", score: 5 },
-                    { text: "视觉效果和表现力", score: 4 },
-                    { text: "时间控制和节奏把握", score: 2 }
-                ]
-            },
-            {
-                question: "当别人误解了你的意思时，你通常会：",
-                options: [
-                    { text: "立即纠正对方的理解", score: 2 },
-                    { text: "询问对方的理解，找出差异", score: 5 },
-                    { text: "换个方式重新表达", score: 4 },
-                    { text: "等待合适时机再澄清", score: 3 }
-                ]
-            },
-            {
-                question: "在处理矛盾时，你倾向于：",
-                options: [
-                    { text: "直接表达不满，寻求解决", score: 3 },
-                    { text: "先理解对方立场，再寻求共识", score: 5 },
-                    { text: "找第三方调解", score: 2 },
-                    { text: "通过行动而非言语表达", score: 1 }
-                ]
-            },
-            {
-                question: "在分享个人经历时，你会：",
-                options: [
-                    { text: "详细描述事件经过", score: 3 },
-                    { text: "重点分享感受和感悟", score: 5 },
-                    { text: "根据听众兴趣选择性分享", score: 4 },
-                    { text: "简单概括主要内容", score: 2 }
-                ]
-            },
-            {
-                question: "当需要说服他人时，你通常会：",
-                options: [
-                    { text: "列举数据和事实", score: 3 },
-                    { text: "讲述相关的故事或案例", score: 4 },
-                    { text: "强调共同利益和价值", score: 5 },
-                    { text: "直接表明利害关系", score: 2 }
-                ]
-            },
-            {
-                question: "在接收他人反馈时，你会：",
-                options: [
-                    { text: "认真记录每个建议", score: 3 },
-                    { text: "与对方深入讨论细节", score: 4 },
-                    { text: "表达感谢并询问具体改进方向", score: 5 },
-                    { text: "默默思考后再做决定", score: 2 }
-                ]
-            },
-            {
-                question: "在表达自己的想法时，你最在意：",
-                options: [
-                    { text: "是否准确传达了核心信息", score: 3 },
-                    { text: "对方是否能够理解和接受", score: 5 },
-                    { text: "表达的方式是否得体", score: 4 },
-                    { text: "是否保持了客观理性", score: 2 }
-                ]
-            }
-        ];
-
-        const results = [
-            {
-                minScore: 10,
-                maxScore: 20,
-                text: "你是一个'谨慎型表达者'。你在表达时往往非常注重细节和准确性，这使得你的表达总是经过深思熟虑。不过，有时候过度的谨慎可能会让你错过一些即时交流的机会。建议你可以尝试更多即兴表达，培养与他人的自然互动能力。记住，完美的表达不仅在于内容，也在于互动的温度。"
-            },
-            {
-                minScore: 21,
-                maxScore: 30,
-                text: "你是一个'理性型表达者'。你善于运用逻辑和事实来支持自己的观点，这让你的表达总是显得有理有据。在专业场合中，这种表达方式特别受欢迎。但在日常交流中，适当增加一些情感元素，可以让你的表达更具亲和力。尝试在表达时加入一些个人经历或感受，会让你的沟通更加立体。"
-            },
-            {
-                minScore: 31,
-                maxScore: 35,
-                text: "你是一个'平衡型表达者'。你很好地把握了逻辑与情感的平衡，能够根据场合灵活调整表达方式。这种特质让你在大多数场合都能得心应手。继续保持这种优势，同时可以尝试在某些特定场合更加大胆地展现个性，让你的表达更具特色。"
-            },
-            {
-                minScore: 36,
-                maxScore: 40,
-                text: "你是一个'灵活型表达者'。你擅长根据不同场合和对象调整表达方式，这种适应性让你的沟通效果往往很好。你的表达富有同理心，善于站在他人的角度思考。继续发挥这个优势，同时也要注意在重要场合保持自己的立场和观点。"
-            },
-            {
-                minScore: 41,
-                maxScore: 45,
-                text: "你是一个'创新型表达者'。你善于用独特的方式传达信息，经常能找到新颖的表达角度。这种特质让你的表达总是充满趣味性。你善于调动他人的积极性，创造良好的互动氛围。建议你继续发挥这种创造力，同时注意在正式场合适当控制表达的跳跃性。"
-            },
-            {
-                minScore: 46,
-                maxScore: 50,
-                text: "你是一个'魅力型表达者'。你极具表达魅力，善于调动气氛，让听众产生共鸣。你的表达方式情感丰富，往往能引起他人的正面回应。这种特质使你在社交和公共场合都能获得好评。建议你继续保持这种感染力，同时在处理严肃话题时，适当增加一些理性分析的成分。"
-            }
-        ];
-
-        let currentQuestion = 0;
-        let totalScore = 0;
-
-        function startTest() {
-            document.querySelector('.welcome-screen').classList.add('hidden');
-            document.querySelector('.question-screen').classList.remove('hidden');
-            showQuestion();
-        }
-
-        function showQuestion() {
-            const questionData = questions[currentQuestion];
-            document.querySelector('.question').textContent = questionData.question;
-            
-            const optionsContainer = document.querySelector('.options');
-            optionsContainer.innerHTML = '';
-            
-            questionData.options.forEach((option, index) => {
-                const optionElement = document.createElement('div');
-                optionElement.className = 'option';
-                optionElement.textContent = option.text;
-                optionElement.onclick = () => selectOption(index, option.score);
-                optionsContainer.appendChild(optionElement);
-            });
-
-            updateProgress();
-        }
-
-        function selectOption(index, score) {
-            const options = document.querySelectorAll('.option');
-            options.forEach(option => option.classList.remove('selected'));
-            options[index].classList.add('selected');
-
-            setTimeout(() => {
-                totalScore += score;
-                currentQuestion++;
-
-                if (currentQuestion < questions.length) {
-                    showQuestion();
-                } else {
-                    showResult();
+                title: "序章：血与沙",
+                scenes: [
+                    {
+                        text: `<div class="location">🏜️ 亚利桑那州 - 废弃殡仪馆</div>
+                        
+                        <span class="character white-snow">玛利亚·布兰卡</span>踹开生锈的铁皮门时，腐臭的血腥味惊飞了天花板上成团的苍蝇。三具尸体在亚利桑那州七月的高温里肿胀成诡异的粉红色，其中一具还穿着她上个月送给锡那罗亚帮的防弹背心，弹孔周围凝结着白垩色的海洛因结晶。
+                        
+                        七个墨西哥人默契地堵住通风口，老五<span class="character julio">胡里奥</span>用猎刀剖开尸体的胃袋，掏出一团被胃酸腐蚀的追踪芯片。`,
+                        choices: [
+                            {
+                                text: "检查追踪芯片",
+                                nextScene: 1
+                            },
+                            {
+                                text: "观察周围环境",
+                                nextScene: 2
+                            }
+                        ]
+                    },
+                    {
+                        text: `你仔细检查被腐蚀的追踪芯片，发现它的制造标记与联邦调查局使用的标准装备不同。
+                        
+                        "看来联邦探员连殡仪馆都买通了。" 你将芯片碾碎在靴底，粘稠的电子元件残骸像某种变异的寄生虫。`,
+                        choices: [
+                            {
+                                text: "与七兄弟交谈",
+                                nextScene: 3,
+                                action: function() {
+                                    addToInventory("追踪芯片残骸");
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        text: `你环顾四周，注意到墙面上的圣母像。走近后，你发现石膏像左眼窝里嵌着的微型摄像头正在闪烁红光。
+                        
+                        在监控镜头的另一端，老布兰卡夫人正用冰镇香槟缓解偏头痛，梳妆镜造型的平板电脑里传出魔镜的警告："C组追踪器失效，建议提前收网。"`,
+                        choices: [
+                            {
+                                text: "破坏摄像头",
+                                nextScene: 3
+                            },
+                            {
+                                text: "假装没发现",
+                                nextScene: 3,
+                                action: function() {
+                                    gameState.flags.cameraUntouched = true;
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        text: `沙漠的月光从铁皮屋顶的弹孔漏下来，你解开缠在腰间的战术腰带，七块镀金怀表在油毡布上摆成北斗七星。这是七兄弟母亲们的遗物，她们当年被老布兰卡用同样的方式吊死在美墨边境的输电线塔上——作为对试图向缉毒局告密者的惩罚。
+                        
+                        <span class="character carlos">老四卡洛斯</span>舔着虎口残留的可卡因沫子笑起来："该去给总统先生送生日礼物了。"`,
+                        choices: [
+                            {
+                                text: "询问'生日礼物'的细节",
+                                nextScene: 4
+                            },
+                            {
+                                text: "直接前往下一个目的地",
+                                nextScene: 5
+                            }
+                        ]
+                    },
+                    {
+                        text: `"告诉我更多关于这个'生日礼物'的事，" 你冷静地问道。
+                        
+                        <span class="character carlos">卡洛斯</span>露出了一个神秘的微笑："在奇瓦瓦沙漠地下四十米的废弃银矿里，二十吨掺着CL-20炸药的芬太尼正通过地下水脉渗向边境线。"
+                        
+                        你不动声色地点头，但内心已经在计算如何利用这个信息。`,
+                        choices: [
+                            {
+                                text: "继续任务",
+                                nextScene: 5,
+                                action: function() {
+                                    addToInventory("银矿坐标");
+                                    gameState.flags.knowsBombLocation = true;
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        text: `当<span class="character julio">胡里奥</span>用氰化物匕首割断殡仪馆老板喉咙时，${gameState.flags.cameraUntouched ? '屋顶的摄像头突然传出电流干扰的杂音。' : '你注意到其他几个隐藏的摄像头位置。'}
+                        
+                        "亲爱的，你该感谢我帮你处理垃圾。" 老布兰卡夫人的声音带着香槟杯碰撞的脆响，梳妆镜边框的鎏金鸢尾花纹路在她指间流转。
+                        
+                        你盯着摄像头玻璃上倒映的半个总统徽章，那是今早白宫特别简报会的纪念品，此刻却粘着尸体的脑浆。`,
+                        choices: [
+                            {
+                                text: "回应布兰卡夫人",
+                                nextScene: 6
+                            },
+                            {
+                                text: "一言不发射爆摄像头",
+                                nextScene: 7
+                            }
+                        ]
+                    },
+                    {
+                        text: `"母亲难道没教过你垃圾分类？" 你冷笑着回应，手指已经搭在了武器上。
+                        
+                        布兰卡夫人轻笑一声，摄像头画面突然浮现出拉斯维加斯某间安全屋的三维坐标。
+                        
+                        "你会在那里找到你需要的东西，我的小雪花，" 她的声音中带着一丝你无法解读的情绪，"72小时，不多不少。"
+                        
+                        屏幕上出现了精确到毫秒的鲜红色倒计时数字。`,
+                        choices: [
+                            {
+                                text: "接受任务",
+                                nextScene: 8,
+                                action: function() {
+                                    gameState.timerActive = true;
+                                    document.getElementById('timer-container').style.display = 'block';
+                                    startTimer();
+                                    addToInventory("拉斯维加斯安全屋坐标");
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        text: `没有任何警告，你抬手射爆了摄像头。玻璃和电子元件的碎片四处飞溅。
+                        
+                        静电噪音后，另一个摄像头亮起，布兰卡夫人的声音听起来很愉悦："脾气还是这么暴躁，我的小雪花。无论如何，你的新任务已经准备好了。"
+                        
+                        镜面突然浮现出拉斯维加斯某间安全屋的三维坐标，屏幕底部显示着72小时的精确倒计时。
+                        
+                        "清除行动进入最终阶段，" 魔镜的合成音适时穿透静电噪音。`,
+                        choices: [
+                            {
+                                text: "准备执行任务",
+                                nextScene: 8,
+                                action: function() {
+                                    gameState.timerActive = true;
+                                    document.getElementById('timer-container').style.display = 'block';
+                                    startTimer();
+                                    addToInventory("拉斯维加斯安全屋坐标");
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        text: `货运列车碾过边境铁轨的震动声掩盖了枪械上膛的咔嗒声。
+                        
+                        你忽然笑起来，左眼睑下方的刀疤在月光里泛着幽蓝色的光芒。那是三个月前国民警卫队直升机坠毁的夜晚，你用霰弹枪轰开舱门时被螺旋桨碎片划伤的。
+                        
+                        "给母亲准备个水晶棺材，" 你踩灭雪茄，火星在军靴底迸溅成扭曲的十字形，"要能装下二十吨CL-20的那种。"
+                        
+                        七兄弟交换了眼神，他们明白你话中的含义——复仇计划正式启动。`,
+                        choices: [
+                            {
+                                text: "继续下一章",
+                                nextChapter: 1,
+                                nextScene: 0
+                            }
+                        ]
                     }
-        }, 300);}
-
-        function showResult() {
-            document.querySelector('.question-screen').classList.add('hidden');
-            document.querySelector('.result-screen').classList.remove('hidden');
+                ]
+            },
+            {
+                title: "第一章：白雪的诞生",
+                scenes: [
+                    {
+                        text: `<div class="location">🏜️ 前往拉斯维加斯 - 公路</div>
+                        
+                        在前往拉斯维加斯的路上，你的思绪回到了过去——你从不记得自己的真名。
+                        
+                        二十二年前，蒂华纳郊外的烈日下，五岁的你躲在被鲜血染红的布料堆里，听着母亲濒死的呼吸。她的最后低语在你的记忆中回响："记住这个名字，玛利亚·布兰卡，这是你的伪装，你的盔甲，也是你的武器。"`,
+                        choices: [
+                            {
+                                text: "回忆卡门·布兰卡的收养",
+                                nextScene: 1
+                            },
+                            {
+                                text: "思考母亲的最后话语",
+                                nextScene: 2
+                            }
+                        ]
+                    },
+                    {
+                        text: `随着母亲的声音逐渐消失，身穿丝质裙装的高跟鞋声在泥地上越走越近。
+                        
+                        "啊，看看这个漂亮的小雪花。" 卡门·布兰卡夫人优雅地蹲下，指尖抹去你脸上的尘土，"你可以叫我新妈妈。"
+                        
+                        当时的卡门正坐在黑道与政界的十字路口，是墨西哥湾最大毒品通道的掌控者，国际禁毒委员会的荣誉顾问，以及三任美国总统的私人捐赠人。
+                        
+                        她的眼睛里闪烁着某种你当时无法理解的光芒——掠夺者看到猎物时的满足感。`,
+                        choices: [
+                            {
+                                text: "思考她收养你的原因",
+                                nextScene: 3
+                            }
+                        ]
+                    },
+                    {
+                        text: `你摸了摸颈部的银质项链——这是母亲留下的唯一遗物。在项链的暗格里，藏着一小块微缩胶片，记录着布兰卡夫人与某个代号为"猎人"的政府高官的通话内容。
+                        
+                        你记得对话中反复出现"禁毒战争"这个词，但奇怪的是，这个词每次出现时都伴随着笑声。多年来，这些线索一直指引着你，让你明白你的目标不仅是为母亲复仇，还有揭露一个远比想象中更大的阴谋。`,
+                        choices: [
+                            {
+                                text: "继续回忆童年训练",
+                                nextScene: 3
+                            }
+                        ]
+                    },
+                    {
+                        text: `布兰卡家族内部流传着种种猜测：有人说卡门收养你是为了把你培养成完美的替罪羊，也有人说是出于某种变态的占有欲——就像收藏猎物的头骨。
+                        
+                        但只有卡门自己知道，她从你的眼中看到了危险的火光，那是一种可以被引导、被塑造的狂热，是最好的战争武器。
+                        
+                        十二岁那年，在布兰卡庄园的地下室里，你第一次开枪，子弹穿透了关押的倒霉毒贩的膝盖。`,
+                        choices: [
+                            {
+                                text: "回忆卡门的训诫",
+                                nextScene: 4
+                            },
+                            {
+                                text: "跳过痛苦记忆",
+                                nextScene: 5
+                            }
+                        ]
+                    },
+                    {
+                        text: `卡门温柔地纠正你的持枪姿势："亲爱的，膝盖会让他们求饶，但只有头和心能让秘密流出来。"
+                        
+                        次日，卡门送给你一只加州沙漠里捕获的白化眼镜蛇，"白雪，我的小公主，记住蛇的忠诚只属于饲养它的人。"
+                        
+                        从那天起，"白雪公主"这个代号便刻进了边境两岸的黑道档案里。你不知道自己是被训练成了猎人还是猎物，但你学会了伪装。`,
+                        choices: [
+                            {
+                                text: "继续回忆成年经历",
+                                nextScene: 5
+                            }
+                        ]
+                    },
+                    {
+                        text: `十七岁时，你拿到了CIA的第一份地图——那是卡门递给你的成人礼。
+                        
+                        "情报机构就像生育你的母亲，" 卡门笑着说，"它会喂养你，教导你，却永远把控制你的绳索握在手心。"
+                        
+                        同年冬天，你亲手处决了第一个背叛卡门的中层，用的是生母留下的银质匕首。卡门亲吻你的额头："这把刀从今天起就叫'仁慈'吧，因为它给了背叛者最干净的死法。"`,
+                        choices: [
+                            {
+                                text: "回忆发现的真相",
+                                nextScene: 6
+                            }
+                        ]
+                    },
+                    {
+                        text: `二十岁的你偶然听到一个濒死的CIA外勤人员的耳语。那个被卡门下令处决的探员在最后一刻喃喃道：
+                        
+                        "你的亲生母亲从未背叛布兰卡家族，她只是发现了毒品里混合的CL-20去向——那些本应炸毁恐怖分子据点的军用炸药，最终都埋进了美国本土的地下水脉。"
+                        
+                        这句临终告白如同一颗种子，在你心中生根发芽。你开始秘密收集信息，通过那些CIA提供的地图的盲点和缺口，拼凑出一幅完全不同的图景——你眼前的继母，这个受人尊敬的"禁毒女王"，实际上正在策划一场前所未有的恐怖袭击。`,
+                        choices: [
+                            {
+                                text: "思考复仇计划",
+                                nextScene: 7
+                            }
+                        ]
+                    },
+                    {
+                        text: `布兰卡夫人似乎从未察觉你的变化。她继续让你掌管军事行动，同时向你灌输家族哲学：
+                        
+                        "毒品不过是一种货币，亲爱的，真正的财富是恐惧——让政客们恐惧的能力，让执法部门恐惧的能力，这才是我们家族的根基。"
+                        
+                        当你开始寻找七兄弟时，你唯一的线索就是七块镀金怀表。那些怀表属于七位在美墨边境被处决的女人，她们的儿子们如今散落在边境两侧的犯罪世界里，与你有着同样的血仇——布兰卡夫人曾下令处决他们的母亲，只因这些女性发现了毒品运输线中的异常。`,
+                        choices: [
+                            {
+                                text: "回忆与七兄弟的相遇",
+                                nextScene: 8
+                            }
+                        ]
+                    },
+                    {
+                        text: `你花了两年时间找到并联系了七个兄弟。你没有用金钱或权力诱惑他们，而是将七块怀表摆在一张黑色的长桌上，让月光照亮上面被血液腐蚀的金属。
+                        
+                        "我不能保证你们活着看到复仇完成的那一天，" 你说，"但我可以保证布兰卡夫人会死在比她制造的任何死亡都更痛苦的折磨中。"
+                        
+                        七兄弟没有立即回应。<span class="character julio">胡里奥</span>拿起母亲的怀表，轻轻摩挲表面凹陷的缺口，那是子弹擦过的痕迹。"你的计划是什么？" 他问。`,
+                        choices: [
+                            {
+                                text: "解释你的计划",
+                                nextScene: 9,
+                                action: function() {
+                                    gameState.decisions.trustSeven = true;
+                                }
+                            },
+                            {
+                                text: "保留部分计划细节",
+                                nextScene: 9
+                            }
+                        ]
+                    },
+                    {
+                        text: `${gameState.decisions.trustSeven ? 
+                        '你从行军背包里取出一组微型芯片，那是从布兰卡夫人的私人保险柜里偷来的魔镜系统的接入密钥。' : 
+                        '你谨慎地分享了计划的一部分，但保留了关于魔镜系统接入密钥的细节。'}
+                        
+                        "首先，我们黑进魔镜，获取布兰卡夫人的全部秘密。然后，我们用她自己的武器杀死她——不，不是子弹或者炸药，而是她最依赖的系统，她的骄傲，她的魔镜。"
+                        
+                        <span class="character alejandro">亚历杭德罗</span>接过芯片，冷笑一声："技术上可行，但风险极高。魔镜由CIA资助，安全协议可能每三小时就会更新一次。我们需要一个内应。"`,
+                        choices: [
+                            {
+                                text: "揭示你是双面间谍",
+                                nextScene: 10
+                            }
+                        ]
+                    },
+                    {
+                        text: `你解开迷彩服的领口，露出左锁骨上的微型植入物。
+                        
+                        "已经有了。CIA认为我是他们的资产，而布兰卡夫人认为我是她忠诚的养女。这两个身份给了我足够的访问权限，可以在六个月内收集足够的情报，然后我们就开始行动。"
+                        
+                        七兄弟互相对视，最终点头同意。<span class="character manuel">马努埃尔</span>是最后一个表态的，他犹豫地问："如果你在这个过程中必须牺牲我们其中一个人来完成任务，你会吗？"`,
+                        choices: [
+                            {
+                                text: "坦诚回答：'我会，但会确保牺牲值得'",
+                                nextScene: 11,
+                                action: function() {
+                                    gameState.flags.honestWithBrothers = true;
+                                }
+                            },
+                            {
+                                text: "回避问题：'我会尽全力保护每个人'",
+                                nextScene: 11
+                            }
+                        ]
+                    },
+                    {
+                        text: `${gameState.flags.honestWithBrothers ? 
+                        '你走到窗前，窗外是亚利桑那的荒漠，远处的输电线塔在夕阳中像绞刑架一样耸立。"我会，" 你最终说，"但我也会确保你们的牺牲值得。我们不仅要杀死布兰卡夫人，还要摧毁她的整个帝国，连同那些保护她的政客和特工。"' : 
+                        '你选择回避直接回答，说你会尽全力保护每个人，但马努埃尔的眼神表明他并不完全相信。尽管如此，他还是点头同意加入计划。'}
+                        
+                        在接下来的三年里，七兄弟成为你最忠实的部下和唯一信任的同伴。你们在边境两侧建立了自己的情报网，同时小心翼翼地在布兰卡家族的运作中插入微小的漏洞和缺口，足够让你们收集证据，但又不至于引起怀疑。`,
+                        choices: [
+                            {
+                                text: "抵达拉斯维加斯安全屋",
+                                nextScene: 12
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏙️ 拉斯维加斯 - 安全屋</div>
+                        
+                        你终于抵达了拉斯维加斯的安全屋。入口处的密码锁显示上一次访问是在去年春天，当时一个哥伦比亚中间人在这里被活生生砌进混凝土，布兰卡夫人称之为给缉毒局长的"情人节惊喜"。
+                        
+                        房间里弥漫着灰尘和霉菌的气息，但你的注意力立即被墙上的一面大镜子吸引。这不是普通的镜子，而是魔镜系统的一个终端。`,
+                        choices: [
+                            {
+                                text: "激活魔镜终端",
+                                nextScene: 13
+                            },
+                            {
+                                text: "先搜索房间",
+                                nextScene: 14
+                            }
+                        ]
+                    },
+                    {
+                        text: `你走向魔镜，手指轻触镜面。镜子立刻亮起，显示出倒计时——71小时24分钟，精确到毫秒的鲜红色数字。
+                        
+                        "欢迎回来，白雪公主，" 魔镜的合成声音响起，"清除行动进入最终阶段。请确认您已收到任务简报。"
+                        
+                        屏幕上浮现出一份详细的任务书，内容涉及盐湖城的"禁毒成果展"，以及在科罗拉多河流域部署的多个炸弹装置。`,
+                        choices: [
+                            {
+                                text: "查看任务详情",
+                                nextScene: 15,
+                                action: function() {
+                                    addToInventory("盐湖城任务简报");
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        text: `你决定先仔细搜索房间。在床垫下，你发现了一个防水袋，里面装着多份文件和一把USB密钥。
+                        
+                        文件上印有国土安全部的徽章，但内容与一个叫做"猎人协议"的秘密行动有关。这些文件记录了在美国西南部多个供水系统中植入炸弹的详细计划。
+                        
+                        USB密钥似乎包含更多信息，但需要解密才能访问。`,
+                        choices: [
+                            {
+                                text: "现在激活魔镜终端",
+                                nextScene: 13,
+                                action: function() {
+                                    addToInventory("猎人协议文件");
+                                    addToInventory("加密USB密钥");
+                                    gameState.decisions.foundEvidence = true;
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        text: `任务简报中详细列出了几个关键目标：
+                        
+                        1. 盐湖城"禁毒成果展"：所有展品已被替换为含有CL-20炸药的芬太尼样本，预计在72小时后引爆，目标是造成大规模伤亡。
+                        
+                        2. 科罗拉多河流域水处理设施：多个点位已植入炸弹装置，引爆后将污染美国西南部主要供水系统。
+                        
+                        3. 华盛顿特区：在关键时刻，魔镜系统将阻断所有政府通讯，为"猎人"接管权力创造条件。
+                        
+                        任务要求你监督这些行动的最终准备工作，确保一切按计划进行。`,
+                        choices: [
+                            {
+                                text: "联系七兄弟",
+                                nextScene: 16
+                            }
+                        ]
+                    },
+                    {
+                        text: `你启动加密通讯器，联系分散在不同位置的七兄弟。
+                        
+                        "<span class="character roberto">罗伯托</span>，你看到简报了吗？" 你直接问道。
+                        
+                        "看到了，" 他的声音通过通讯器传来，"这比我们预想的更糟。布兰卡夫人计划同时在多个城市发动攻击，死亡人数可能达到数十万。"
+                        
+                        "<span class="character alejandro">亚历杭德罗</span>，你能黑进魔镜系统更深层次的数据库吗？我们需要知道所有炸弹的确切位置。"
+                        
+                        "正在尝试，" 亚历杭德罗回答，"但系统安全级别很高，需要更多时间。"`,
+                        choices: [
+                            {
+                                text: "制定行动计划",
+                                nextScene: 17
+                            }
+                        ]
+                    },
+                    {
+                        text: `你快速制定了新的行动计划：
+                        
+                        "<span class="character roberto">罗伯托</span>、<span class="character carlos">卡洛斯</span>和<span class="character julio">胡里奥</span>，你们前往科罗拉多河，破坏那些水处理设施的炸弹。制造一些小型爆炸分散注意力，但避免任何伤亡。"
+                        
+                        "<span class="character sebastian">塞巴斯蒂安</span>和<span class="character diego">迭戈</span>，你们和我一起去华盛顿。我们需要抓住布兰卡夫人，让她交出所有控制码。"
+                        
+                        "<span class="character alejandro">亚历杭德罗</span>和<span class="character manuel">马努埃尔</span>，你们留在原地，继续监控魔镜系统，找出'猎人'的真实身份。"`,
+                        choices: [
+                            {
+                                text: "继续下一章",
+                                nextChapter: 2,
+                                nextScene: 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: "第二章：七个兄弟",
+                scenes: [
+                    {
+                        text: `<div class="location">🛣️ 前往科罗拉多河 - 公路</div>
+                        
+                        在前往各自目的地的路上，你通过加密通讯再次核实了每个兄弟的状态和任务。这是一场分散在全国各地的协同行动，时间紧迫，风险极高。
+                        
+                        <span class="character roberto">罗伯托·冈萨雷斯</span>，大家叫他"博士"，曾在加州理工学院研究爆炸物化学，直到他的母亲——一位在边境医院工作的护士被发现死于"药物过量"。他是你最信任的拆弹专家。`,
+                        choices: [
+                            {
+                                text: "了解更多关于亚历杭德罗",
+                                nextScene: 1
+                            },
+                            {
+                                text: "了解更多关于塞巴斯蒂安",
+                                nextScene: 2
+                            }
+                        ]
+                    },
+                    {
+                        text: `<span class="character alejandro">亚历杭德罗·门多萨</span>，绰号"幽灵"，是七人中最神秘的一位。他母亲是某国际银行的数据分析师，在发现布兰卡家族的资金流动模式异常后神秘失踪，尸体被发现吊在边境线的高压电塔上。
+                        
+                        亚历杭德罗继承了母亲的天赋，成为一名网络黑客，能够渗透进任何数字系统，包括魔镜的边缘节点。他极少说话，但他的键盘声如同死神的低语。`,
+                        choices: [
+                            {
+                                text: "了解更多关于塞巴斯蒂安",
+                                nextScene: 2
+                            }
+                        ]
+                    },
+                    {
+                        text: `<span class="character sebastian">塞巴斯蒂安·罗德里格斯</span>，"蛇"，是一名前特种部队士兵，退役后被CIA招募为外勤人员，直到他发现母亲的死亡报告被篡改。他的母亲是边境小镇的教师，因拒绝让学校成为毒品转运站而被杀害。
+                        
+                        塞巴斯蒂安精通渗透和伪装，他能在不被察觉的情况下潜入任何设施，包括布兰卡家族的核心据点。他的身体上有二十七处伤疤，每一处都来自不同的武器。`,
+                        choices: [
+                            {
+                                text: "了解更多关于其他兄弟",
+                                nextScene: 3
+                            }
+                        ]
+                    },
+                    {
+                        text: `<span class="character carlos">卡洛斯·埃雷拉</span>，"艺术家"，曾是墨西哥城一家广告公司的创意总监，直到他的母亲——一位记者因调查布兰卡家族与政府的关系而被发现"自杀"。
+                        
+                        <span class="character julio">胡里奥·巴尔加斯</span>，"猎人"，是边境最令人畏惧的追踪者之一。他的猎刀是用母亲的骨灰混合特殊金属锻造的，据说能切开任何电子锁和生物识别系统。
+                        
+                        <span class="character diego">迭戈·桑托斯</span>，"医生"，曾是美国军方的外科医生，他精通各种毒素和化学武器的制作。
+                        
+                        <span class="character manuel">马努埃尔·奥尔蒂斯</span>，"天使"，年仅二十四岁，是七人中最年轻的一位，是一个技术天才。`,
+                        choices: [
+                            {
+                                text: "抵达科罗拉多河",
+                                nextScene: 4
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏞️ 科罗拉多河 - 污水处理厂附近</div>
+                        
+                        科罗拉多河沿岸的黄昏泛着铜锈色的光芒，<span class="character roberto">罗伯托</span>通过无线电向你报告：
+                        
+                        "我们已就位。目标区域人员稀少，主要是维护人员和夜班保安。大约七到九人。计时装置已经就位。第一波将在20分钟后引爆，正好是班次交接的混乱时刻。"
+                        
+                        与此同时，<span class="character diego">迭戈</span>和<span class="character sebastian">塞巴斯蒂安</span>已经和你汇合，准备一起前往华盛顿特区。`,
+                        choices: [
+                            {
+                                text: "向罗伯托提供最后指示",
+                                nextScene: 5
+                            },
+                            {
+                                text: "立即出发前往华盛顿",
+                                nextScene: 6
+                            }
+                        ]
+                    },
+                    {
+                        text: `"记住，罗伯托，关键是制造混乱而不是伤亡，" 你通过加密频道提醒他，"我们需要足够的骚动来分散注意力，但不能伤害无辜者。"
+                        
+                        "明白，" 他简短地回应，"爆炸点选在了远离主控室的污水池，应该不会造成人员伤亡。<span class="character julio">胡里奥</span>已经潜入第二目标，红岩水坝的控制室。他会在第一次爆炸后切断监控系统。"
+                        
+                        "祝你们好运，" 你说，"完成后在约定地点汇合。"`,
+                        choices: [
+                            {
+                                text: "前往华盛顿",
+                                nextScene: 6
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">✈️ 前往华盛顿特区 - 私人飞机</div>
+                        
+                        在飞往华盛顿的私人飞机上，你与<span class="character diego">迭戈</span>和<span class="character sebastian">塞巴斯蒂安</span>仔细研究布兰卡夫人的行程表。根据魔镜系统的情报，她将参加总统的公开演讲，主题是"毒品威胁与国家安全"。
+                        
+                        "这是个绝佳的机会，" 塞巴斯蒂安指出，"公开场合，相对较少的个人安保，足够的混乱可以掩护我们的行动。"
+                        
+                        迭戈却显得忧心忡忡："但风险依然很大。如果布兰卡夫人察觉到任何异常，她可能会立即激活你体内的芯片。"`,
+                        choices: [
+                            {
+                                text: "讨论芯片问题",
+                                nextScene: 7
+                            }
+                        ]
+                    },
+                    {
+                        text: `"关于那个，" 你轻轻拍了拍自己的左眼下方的疤痕，"迭戈已经处理好了。三个月前国民警卫队直升机事件不是意外，我们精心策划了那次'意外'，目的就是让迭戈有机会提取并替换布兰卡夫人植入我体内的芯片。"
+                        
+                        塞巴斯蒂安挑眉："所以现在她认为仍然可以控制你，但实际上..."
+                        
+                        "实际上那个芯片只会向她传送我们想让她看到的数据，" 你冷笑一声，"此刻，魔镜显示我正在亚利桑那州监督边境运输。"`,
+                        choices: [
+                            {
+                                text: "制定抓捕布兰卡夫人的计划",
+                                nextScene: 8
+                            }
+                        ]
+                    },
+                    {
+                        text: `你们开始制定详细的抓捕计划。
+                        
+                        "根据情报，布兰卡夫人将在演讲后参加白宫的私人会议，" 你指着平板电脑上的建筑平面图，"但我们不能在白宫内部行动，安保太严密。我们需要在她前往或离开白宫的途中实施抓捕。"
+                        
+                        塞巴斯蒂安补充道："我有白宫警卫部队的制服和证件，可以接近她的车队。"
+                        
+                        "我准备了一种特殊的镇静剂，" 迭戈拿出一个小型注射器，"它不仅能让她失去意识，还会使她进入一种特殊状态，更容易吐露真相。"`,
+                        choices: [
+                            {
+                                text: "调整计划",
+                                nextScene: 9
+                            }
+                        ]
+                    },
+                    {
+                        text: `就在你们完善计划细节时，<span class="character alejandro">亚历杭德罗</span>的紧急通讯打断了讨论。
+                        
+                        "白雪，我们有问题，" 他的声音充满紧张，"魔镜系统检测到异常活动。科罗拉多河的行动已经引起了布兰卡夫人的注意，她刚刚下令提高所有设施的安全级别。更糟的是，她似乎准备提前激活一些炸弹装置。"
+                        
+                        你迅速切换思路："我们必须加快行动。现在目标不仅是抓捕布兰卡夫人，还要立即找到炸弹的主控装置。"
+                        
+                        "根据我黑进的数据，" 亚历杭德罗继续说，"主控装置可能在她随身携带的某个设备中，或者藏在华盛顿的某个安全屋里。"`,
+                        choices: [
+                            {
+                                text: "分头行动",
+                                nextScene: 10
+                            }
+                        ]
+                    },
+                    {
+                        text: `考虑到形势紧急，你决定分头行动。
+                        
+                        "塞巴斯蒂安，你去寻找主控装置。亚历杭德罗会给你可能的位置列表。迭戈和我去实施抓捕。我们必须在她进入白宫前拦截她。"
+                        
+                        就在这时，飞机上的电视突然播放了紧急新闻——科罗拉多河沿岸的污水处理厂发生爆炸，当局正在疏散周边居民。
+                        
+                        "第一阶段已经开始，" 你锁定电视画面上升起的烟柱，"但愿罗伯托他们安全撤离。"`,
+                        choices: [
+                            {
+                                text: "抵达华盛顿",
+                                nextScene: 11
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏛️ 华盛顿特区</div>
+                        
+                        当你们的飞机降落在华盛顿郊外的私人机场时，<span class="character roberto">罗伯托</span>的报告通过加密通讯传来：
+                        
+                        "任务顺利完成。三处设施的爆炸都没有造成人员伤亡，但我们发现了一个意外情况——有一架政府直升机在红岩峡谷上空坠毁，看起来不像意外。布兰卡夫人可能在清除知情者。"
+                        
+                        你握紧拳头："这意味着她已经开始行动了。我们必须加快速度。"
+                        
+                        塞巴斯蒂安立即向亚历杭德罗提供的第一个可能地点出发，而你和迭戈则前往白宫附近，准备拦截布兰卡夫人的车队。`,
+                        choices: [
+                            {
+                                text: "继续下一章",
+                                nextChapter: 3,
+                                nextScene: 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: "第三章：魔镜的秘密",
+                scenes: [
+                    {
+                        text: `<div class="location">🏢 华盛顿特区 - 布兰卡家族安全屋</div>
+                        
+                        你和<span class="character diego">迭戈</span>迅速改变了计划。新情报显示布兰卡夫人在白宫会议后直接前往了乔治城的一座古老洋房——这是布兰卡家族在华盛顿的秘密据点之一，也是魔镜系统在东海岸的控制中心。
+                        
+                        通过<span class="character alejandro">亚历杭德罗</span>提供的后门密码，你们成功潜入了这座表面上普通的洋房。在精心伪装的客厅背后，一个隐藏的开关露出了通往地下室的楼梯。`,
+                        choices: [
+                            {
+                                text: "潜入地下室",
+                                nextScene: 1
+                            },
+                            {
+                                text: "先搜索主楼层",
+                                nextScene: 2
+                            }
+                        ]
+                    },
+                    {
+                        text: `你们小心翼翼地下到地下室，冰冷的蓝光迎接着你们。十几台服务器在恒温环境中嗡嗡作响，墙上的显示屏实时更新着全球范围内的数据流。
+                        
+                        "这就是魔镜系统的一个主要节点，" 你低声对迭戈说，"布兰卡夫人通过这个系统控制她的整个网络，包括那些植入政府官员体内的微型芯片。"
+                        
+                        迭戈立即开始检查系统："令人难以置信——这里不仅有毒品交易的数据，还有数百名政府官员的个人档案，包括他们的弱点、秘密和控制方式。"`,
+                        choices: [
+                            {
+                                text: "检查倒计时状态",
+                                nextScene: 3
+                            }
+                        ]
+                    },
+                    {
+                        text: `在上楼搜索前，你接到<span class="character sebastian">塞巴斯蒂安</span>的通讯："我已到达威尔逊广场，正在寻找那辆SUV。布兰卡夫人可能将主控装置藏在车内的保险箱里。"
+                        
+                        你和迭戈迅速搜索主楼层，在书房里发现了一份重要文件——一张手写便笺，上面草草记录着几个地点和时间。其中一个是"白宫战情室，1800hrs"，旁边写着"猎人确认"。
+                        
+                        "看起来布兰卡夫人今晚会在白宫战情室与'猎人'会面，" 你意识到这可能是接近两个目标的机会。`,
+                        choices: [
+                            {
+                                text: "前往地下室",
+                                nextScene: 1,
+                                action: function() {
+                                    addToInventory("会议便笺");
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        text: `你在主控制台上输入指令，屏幕立即显示出一个全局视图——数十个红点标记在美国地图上，每个点旁边都有一个倒计时。
+                        
+                        "这些是炸弹装置的位置，" 你惊讶地说，"远比我们想象的要多。光是西南部地区就有十七个装置，每一个都连接到关键的供水设施。"
+                        
+                        更令人不安的是，所有装置的倒计时已经被调整——不再是72小时，而是24小时。
+                        
+                        "布兰卡夫人提前了计划，" 迭戈紧张地说，"我们必须尽快找到主控装置。"`,
+                        choices: [
+                            {
+                                text: "深入调查'猎人协议'",
+                                nextScene: 4
+                            }
+                        ]
+                    },
+                    {
+                        text: `你继续在系统中搜索，终于找到了一个加密文件夹，标记为"猎人协议"。通过亚历杭德罗提前植入的漏洞，你成功访问了这些文件。
+                        
+                        文件内容令人震惊——"猎人协议"实际上是一个精密的政变计划。当炸弹在关键位置引爆，制造全国范围的恐慌后，一组被称为"猎人"的高级政府官员将接管关键部门，宣布国家紧急状态，并暂停宪法保障的某些权利。
+                        
+                        文件中提到一个关键术语："水晶宫崩塌"——这似乎是指白宫遭到攻击或陷入混乱的代号。`,
+                        choices: [
+                            {
+                                text: "查找'猎人'的身份",
+                                nextScene: 5
+                            }
+                        ]
+                    },
+                    {
+                        text: `深入挖掘后，你发现了一组加密通讯记录，展示了布兰卡夫人与多名政府高官的对话。虽然大部分名字被严格加密，但你认出了国安会顾问格林的ID。
+                        
+                        "格林是主要的'猎人'之一，" 你对迭戈说，"他在国安会的位置让他能够接触所有高级安全简报和总统日程。"
+                        
+                        就在这时，系统突然发出警报："检测到未授权访问。启动防御协议。"
+                        
+                        "该死，我们被发现了！" 迭戈紧张地说，"我们必须立即撤离。"`,
+                        choices: [
+                            {
+                                text: "复制关键数据后撤离",
+                                nextScene: 6,
+                                action: function() {
+                                    addToInventory("猎人协议数据");
+                                    addToInventory("格林的通讯记录");
+                                }
+                            },
+                            {
+                                text: "尝试破坏系统后撤离",
+                                nextScene: 7
+                            }
+                        ]
+                    },
+                    {
+                        text: `你迅速插入准备好的加密U盘，开始复制所有关于"猎人协议"和炸弹位置的数据。系统发出刺耳的警报声，红色警示灯开始闪烁。
+                        
+                        "再给我三十秒，" 你紧盯着进度条，"我们需要这些证据。"
+                        
+                        数据传输完成的瞬间，你拔出U盘，和迭戈快速撤离地下室。就在你们关上隐藏入口的几秒钟后，前门传来钥匙插入锁孔的声音。`,
+                        choices: [
+                            {
+                                text: "从后门逃离",
+                                nextScene: 8
+                            }
+                        ]
+                    },
+                    {
+                        text: `你迅速输入一串命令，试图破坏魔镜系统。屏幕闪烁几下，然后显示："紧急备份启动。数据保护协议激活。"
+                        
+                        "没用的，" 迭戈急促地说，"系统有多重备份，我们无法从这里完全摧毁它。"
+                        
+                        你不得不放弃破坏系统的尝试，但至少成功植入了一个后门程序，让亚历杭德罗能够继续远程监控魔镜的活动。
+                        
+                        前门传来声音，有人进入了房子。你和迭戈必须立即撤离。`,
+                        choices: [
+                            {
+                                text: "从后门逃离",
+                                nextScene: 8
+                            }
+                        ]
+                    },
+                    {
+                        text: `你们悄无声息地穿过厨房，从后门溜了出去。在小巷中，你启动通讯器联系塞巴斯蒂安。
+                        
+                        "我找到SUV了，" 他的声音听起来紧张，"但保险箱是空的。有人在我们之前拿走了东西。"
+                        
+                        你咬紧牙关："那我们只有一个选择了——必须直接抓捕布兰卡夫人。根据我们在安全屋发现的信息，她今晚会在白宫战情室与'猎人'会面。"
+                        
+                        "白宫？" 塞巴斯蒂安难以置信，"那是全国安保最严密的地方之一。我们怎么进去？"`,
+                        choices: [
+                            {
+                                text: "利用CIA身份",
+                                nextScene: 9
+                            },
+                            {
+                                text: "伪装成工作人员",
+                                nextScene: 10
+                            }
+                        ]
+                    },
+                    {
+                        text: `"我有个计划，" 你说，"布兰卡夫人不知道我在华盛顿，她认为我仍在亚利桑那。我可以启动我的CIA资产身份，声称有紧急情报需要直接向总统汇报。"
+                        
+                        "风险太大，" 迭戈警告，"如果布兰卡夫人在现场认出你，她可能会立即触发某种应急计划。"
+                        
+                        "这正是我们要利用的，" 你冷静地回答，"我们需要她感到震惊，打破她的冷静。只有在失控的情况下，她才可能暴露更多信息。"`,
+                        choices: [
+                            {
+                                text: "执行白宫渗透计划",
+                                nextScene: 11
+                            }
+                        ]
+                    },
+                    {
+                        text: `"我有个更安全的计划，" 你说，"塞巴斯蒂安可以利用他的特勤局证件，而我和迭戈可以伪装成技术人员。白宫战情室的通讯系统今天刚好有计划维护。"
+                        
+                        "你怎么知道这个？" 塞巴斯蒂安问。
+                        
+                        "魔镜系统监控着所有政府通讯计划，" 你解释，"包括日常维护。我们可以利用这个漏洞潜入战情室周边区域。"
+                        
+                        迭戈点点头："这确实比直接使用你的CIA身份风险小。"`,
+                        choices: [
+                            {
+                                text: "执行白宫渗透计划",
+                                nextScene: 11
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏛️ 华盛顿特区 - 白宫外围</div>
+                        
+                        几小时后，你们分别通过不同的方式接近了白宫。情况比预期更加紧张——科罗拉多河沿岸的爆炸已经引发全国安全警报，白宫周围的安保级别提升到最高。
+                        
+                        通过耳机，亚历杭德罗通知你们："魔镜系统显示白宫战情室已经启动紧急会议。总统、国务卿、国防部长和几名关键顾问都在场，包括布兰卡夫人和格林。他们正在讨论科罗拉多河的爆炸事件。"
+                        
+                        "形势正好符合他们的计划，" 你意识到，"他们在利用我们制造的混乱推动自己的议程。"`,
+                        choices: [
+                            {
+                                text: "继续下一章",
+                                nextChapter: 4,
+                                nextScene: 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: "第四章：地下四十米",
+                scenes: [
+                    {
+                        text: `<div class="location">🏜️ 奇瓦瓦沙漠 - 废弃银矿</div>
+                        
+                        在你潜入白宫的同时，<span class="character alejandro">亚历杭德罗</span>和<span class="character manuel">马努埃尔</span>正在监控从魔镜系统中截获的数据。他们发现布兰卡夫人已经启动了"猎人协议"的最终倒计时。
+                        
+                        与此同时，<span class="character roberto">罗伯托</span>带领其他兄弟前往奇瓦瓦沙漠的废弃银矿——那里藏着最大批量的CL-20炸药。
+                        
+                        在地下四十米的坑道里，罗伯托正在检查混合了CL-20的芬太尼包裹。这些看似普通的毒品包裹内部却藏着足以摧毁一座城市的军用炸药。`,
+                        choices: [
+                            {
+                                text: "联系罗伯托",
+                                nextScene: 1
+                            },
+                            {
+                                text: "专注于白宫行动",
+                                nextScene: 2
+                            }
+                        ]
+                    },
+                    {
+                        text: `你找到一个安全位置，启动加密通讯联系罗伯托。
+                        
+                        "情况如何？" 你低声问道。
+                        
+                        "我们已经找到了主要储存点，" 罗伯托的声音透过加密线路传来，"这里有至少二十吨混合了CL-20的芬太尼，足以夷平一座中型城市。但我们有个问题——每个包裹都有双重引爆机制，即使切断与魔镜的连接，它们也会在预设时间自动爆炸。"
+                        
+                        "能拆除吗？" 你紧张地问。
+                        
+                        "理论上可以，但需要时间。我们发现了一个意外情况——并非所有包裹都是致命的。有些只是普通毒品，没有炸药。似乎布兰卡夫人对自己的下线也不完全信任。"`,
+                        choices: [
+                            {
+                                text: "给出指示",
+                                nextScene: 3
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏛️ 白宫 - 走廊</div>
+                        
+                        你决定专注于白宫行动。现在你已经成功渗透入白宫外围区域，正在接近战情室。
+                        
+                        通过耳机，亚历杭德罗持续提供情报："战情室会议仍在进行。根据魔镜截获的通讯，布兰卡夫人刚刚提议前往盐湖城的'禁毒成果展'，声称那里的样本可能提供线索。"
+                        
+                        "这是个陷阱，" 你立即意识到，"盐湖城正是她计划的第一个主要爆炸点。她想确保自己不在爆炸现场，同时亲自监督最重要的目标。"`,
+                        choices: [
+                            {
+                                text: "联系罗伯托",
+                                nextScene: 1
+                            }
+                        ]
+                    },
+                    {
+                        text: `"听着，罗伯托，" 你迅速做出决定，"将包裹分为两类处理。确认含有炸药的包裹，优先拆除那些位于人口密集区的装置。同时，我需要你提取足够的证据，证明布兰卡夫人的计划。"
+                        
+                        "明白，" 罗伯托回应，"但即使我们日夜不停工作，也无法在倒计时结束前拆除所有装置。我们需要找到主控装置或关闭魔镜系统。"
+                        
+                        "我正在努力，" 你说，"我即将接近布兰卡夫人和'猎人'。如果能够抓获他们，我们就能迫使他们交出控制码。"`,
+                        choices: [
+                            {
+                                text: "继续白宫行动",
+                                nextScene: 4
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏛️ 白宫 - 战情室入口</div>
+                        
+                        你和<span class="character diego">迭戈</span>终于到达了战情室外围。通过特殊装备，你们可以听到里面的讨论。
+                        
+                        "这不是巧合，" 国防部长的声音传来，"这是一个协调的攻击计划。我们有理由相信，这可能是针对国家关键基础设施的大规模恐怖袭击的前奏。"
+                        
+                        你听到布兰卡夫人的声音："总统先生，如果我可以插一句，我刚刚收到墨西哥方面的情报。据我们的线人报告，锡那罗亚集团可能已经在美国境内多个地点安装了炸弹装置，特别是在供水系统附近。"`,
+                        choices: [
+                            {
+                                text: "潜入战情室",
+                                nextScene: 5
+                            },
+                            {
+                                text: "继续监听",
+                                nextScene: 6
+                            }
+                        ]
+                    },
+                    {
+                        text: `利用混乱时刻，你和迭戈成功潜入了战情室的边缘区域，躲在技术设备后面。
+                        
+                        你看到布兰卡夫人站在总统旁边，她看上去自信而从容，而国安会顾问格林则站在不远处，面无表情地盯着屏幕。
+                        
+                        就在这时，一名通信官匆忙进入战情室，递给格林一份加密文件。格林迅速浏览后，脸色变得严肃："总统先生，我们刚刚接到报告，华盛顿特区周边的几个水质监测站检测到异常物质。初步分析表明，可能含有微量的芬太尼。"
+                        
+                        总统的脸色变得苍白："你是说，首都已经在攻击范围内了？"
+                        
+                        格林点点头："恐怕是的，先生。建议立即启动'猎人协议'。"`,
+                        choices: [
+                            {
+                                text: "直面布兰卡夫人和格林",
+                                nextScene: 7
+                            }
+                        ]
+                    },
+                    {
+                        text: `你决定继续监听，获取更多信息。
+                        
+                        格林建议启动"猎人协议"后，总统困惑地问："'猎人协议'？那是什么？"
+                        
+                        格林与布兰卡夫人交换了一个几乎不可察觉的眼神，然后解释道："这是一项应急预案，专门针对全国范围内的水源污染威胁。它授权国土安全部和特定的联邦机构绕过常规程序，采取极端措施来保护关键基础设施。"
+                        
+                        总统环顾四周，寻求其他顾问的意见。国防部长和国务卿都点头表示同意，虽然他们的表情显示他们对这个协议知之甚少。
+                        
+                        "好吧，" 总统最终决定，"启动'猎人协议'。但我要强调，所有行动必须在法律框架内，并且要尽可能减少平民伤亡。"`,
+                        choices: [
+                            {
+                                text: "追踪布兰卡夫人",
+                                nextScene: 8
+                            }
+                        ]
+                    },
+                    {
+                        text: `突然，你从藏身处走出，直面房间中的每个人。
+                        
+                        "总统先生，" 你声音清晰，"您正在被欺骗。'猎人协议'不是什么应急预案，而是一场精心策划的政变。"
+                        
+                        房间里一片哗然。布兰卡夫人的脸色从惊讶迅速转为愤怒。
+                        
+                        "玛利亚？" 她冷冷地说，似乎无法相信自己的眼睛，"你怎么在这里？"
+                        
+                        格林立即示意安保人员："逮捕她！这是个恐怖分子，可能与爆炸有关！"
+                        
+                        总统震惊地看着这一幕："发生了什么？谁是这个女人？"`,
+                        choices: [
+                            {
+                                text: "展示证据",
+                                nextScene: 9,
+                                action: function() {
+                                    gameState.decisions.confrontedBlanca = true;
+                                }
+                            },
+                            {
+                                text: "直接指控布兰卡夫人和格林",
+                                nextScene: 10,
+                                action: function() {
+                                    gameState.decisions.confrontedBlanca = true;
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        text: `布兰卡夫人借口需要安排前往盐湖城的行程，离开了战情室。你和迭戈悄悄跟随她。
+                        
+                        在白宫走廊的一个安静角落，她取出一部加密手机，拨通了一个隐秘的号码。
+                        
+                        "猎人协议已启动，" 她简短地说，"按计划执行下一阶段。目标：盐湖城。时间：24小时内。"
+                        
+                        就在她准备离开时，魔镜系统向她的个人终端发送了一条警报。她停下脚步，轻触颈椎处的芯片，似乎在接收某种信息。
+                        
+                        "继续监控，" 她低声命令，"但不要采取行动。我要亲自处理这个问题。"`,
+                        choices: [
+                            {
+                                text: "继续跟踪布兰卡夫人",
+                                nextScene: 11
+                            }
+                        ]
+                    },
+                    {
+                        text: `你取出从安全屋复制的数据，迅速连接到战情室的主显示屏。
+                        
+                        "总统先生，这些是布兰卡夫人和格林策划的'猎人协议'的完整文件。这不是什么反恐计划，而是一个接管政府的阴谋。他们在全国范围内的水源附近埋设了炸弹，目的是制造混乱，为接管创造条件。"
+                        
+                        屏幕上显示出详细的计划文件，包括炸弹位置、政变时间表和参与者名单。
+                        
+                        布兰卡夫人的表情扭曲了："你这个忘恩负义的女儿！我给了你一切，而这就是你的回报？"
+                        
+                        格林试图否认："这些都是伪造的！总统先生，这个女人显然是恐怖分子的一员，试图混淆视听！"`,
+                        choices: [
+                            {
+                                text: "揭露更多真相",
+                                nextScene: 12
+                            }
+                        ]
+                    },
+                    {
+                        text: `"总统先生，" 你直视总统的眼睛，"卡门·布兰卡夫人不是什么国际禁毒顾问，她是墨西哥最大毒品集团的首领，而格林是她在政府内部的主要同谋。他们利用禁毒战争的幌子，在全国范围内布置炸弹，目的是制造足够的混乱，让'猎人'组织接管政府关键部门。"
+                        
+                        布兰卡夫人冷笑："荒谬！总统先生，这个女人是我的养女，很遗憾她被激进分子洗脑了。我建议立即逮捕她，彻查她与科罗拉多河爆炸的关系。"
+                        
+                        格林补充道："而且，无论她的指控多么离奇，现在的首要任务是应对即将到来的危机。我们必须立即实施'猎人协议'。"`,
+                        choices: [
+                            {
+                                text: "展示证据",
+                                nextScene: 9
+                            }
+                        ]
+                    },
+                    {
+                        text: `你和迭戈跟着布兰卡夫人来到白宫的一个私人休息室。她锁上门，打开平板电脑。屏幕上显示着一张美国地图，上面标记着数十个红点——每一个都代表着一个已经部署的炸弹装置。
+                        
+                        你看到她敲入一串命令，将所有装置的激活时间提前12小时。
+                        
+                        "如果你想玩游戏，我亲爱的女儿，" 她对着空荡的房间说道，"那就让我们看看谁是真正的棋手。"
+                        
+                        你意识到情况更加危急了——她已经察觉到了你的背叛，并正在加速计划的实施。`,
+                        choices: [
+                            {
+                                text: "立即制服布兰卡夫人",
+                                nextScene: 13
+                            },
+                            {
+                                text: "秘密干扰她的命令",
+                                nextScene: 14
+                            }
+                        ]
+                    },
+                    {
+                        text: `"你知道吗，总统先生，" 你继续说道，"布兰卡夫人二十二年前杀死了我的亲生母亲，因为她发现了布兰卡家族将军用炸药混入毒品，并埋设在美国本土的计划。"
+                        
+                        你解开领口，取出母亲留下的银质项链，打开暗格，取出那块微缩胶片。
+                        
+                        "这是我母亲留下的证据，记录了布兰卡夫人与'猎人'的通话内容。而'猎人'，" 你指向格林，"就是站在这里的国安会顾问。"
+                        
+                        总统震惊地看向格林："这是真的吗？"
+                        
+                        格林刚要否认，<span class="character diego">迭戈</span>突然行动，将准备好的注射器插入布兰卡夫人的颈部。她挣扎了几秒钟，然后瘫软下来，但仍然保持清醒。`,
+                        choices: [
+                            {
+                                text: "继续下一章",
+                                nextChapter: 5,
+                                nextScene: 0
+                            }
+                        ]
+                    },
+                    {
+                        text: `看到布兰卡夫人正在加速炸弹的激活，你不能再等待了。你猛地推开门，举起武器对准她。
+                        
+                        "住手，母亲，" 你冷静地说，"游戏结束了。"
+                        
+                        布兰卡夫人转过身，脸上闪过一丝惊讶，随后变为某种近乎骄傲的表情："我就知道是你。一直都是你，对吗？科罗拉多河的爆炸，魔镜系统的入侵——都是你的手笔。"
+                        
+                        "不仅是我，" 你说，"还有七个兄弟——你杀害的那七位女性的儿子们。我们联合起来，要结束你的恐怖统治。"
+                        
+                        布兰卡夫人笑了："你以为这就结束了？你阻止不了所有的爆炸。'猎人协议'已经启动，无论你做什么，明天的美国都将不再一样。"`,
+                        choices: [
+                            {
+                                text: "制服布兰卡夫人",
+                                nextScene: 15
+                            }
+                        ]
+                    },
+                    {
+                        text: `你没有直接暴露自己，而是利用迭戈植入魔镜系统的后门，悄悄干扰布兰卡夫人发出的命令。
+                        
+                        通过便携设备，你修改了她的指令，使部分炸弹的引爆序列出现轻微错误——不足以让她立即发现，但足以给你们争取更多时间。
+                        
+                        布兰卡夫人似乎对自己的操作很满意，关闭平板电脑，准备离开休息室。现在是抓捕她的最佳时机。`,
+                        choices: [
+                            {
+                                text: "现在制服布兰卡夫人",
+                                nextScene: 15
+                            }
+                        ]
+                    },
+                    {
+                        text: `你和迭戈迅速行动，趁布兰卡夫人不备将她制服。迭戈立即注射了准备好的特殊药物，使她进入半清醒状态。
+                        
+                        "好了，母亲，" 你将她绑在椅子上，"现在是时候回答一些问题了。首先，'猎人'的真实身份是谁？不只是格林，还有谁参与了这个阴谋？"
+                        
+                        在药物的作用下，布兰卡夫人的抵抗力大大降低。她开始透露重要信息："猎人......不是一个人......而是一个组织。每个人都只知道自己的任务......没有人知道全部计划......即使是我......也只是一个棋子......"
+                        
+                        这个启示令你震惊——布兰卡夫人竟然也只是更大阴谋中的一个执行者。`,
+                        choices: [
+                            {
+                                text: "继续审问",
+                                nextScene: 16
+                            }
+                        ]
+                    },
+                    {
+                        text: `"谁是最高领导？谁在控制一切？" 你追问道。
+                        
+                        布兰卡夫人的笑声变得刺耳："你真的以为......我会告诉你吗？魔镜......已经碎了......但它的每一块碎片......都能反射出真相的一部分......"
+                        
+                        就在这时，你接到<span class="character alejandro">亚历杭德罗</span>的紧急通讯："魔镜系统正在重启！我们失去了对它的控制。有人启动了备用协议，所有炸弹装置的计时器都被重置，倒计时两小时！"
+                        
+                        "是谁？谁还有这种级别的权限？" 你紧张地问。
+                        
+                        "根据日志记录，是来自国防部内网的一个终端，" 亚历杭德罗回答，"用户ID属于国防部长。但更奇怪的是，这个命令是在五分钟前发出的，而根据我们的情报，国防部长此刻正在五角大楼参加紧急会议。"`,
+                        choices: [
+                            {
+                                text: "联系塞巴斯蒂安",
+                                nextScene: 17
+                            }
+                        ]
+                    },
+                    {
+                        text: `你立即联系<span class="character sebastian">塞巴斯蒂安</span>："新情况，有人冒充国防部长发出了加速炸弹引爆的命令。我们只剩下两小时了。"
+                        
+                        "该死，" 塞巴斯蒂安咒骂，"我刚刚得到一个线索。威尔逊广场的监控录像显示，一个带着帽子和墨镜的人在一小时前取走了SUV中的物品。从身形来看，可能是一名女性。"
+                        
+                        你思考片刻："可能是布兰卡夫人的另一个同谋。我们必须分头行动——你去追踪那个神秘人物，迭戈和我将把布兰卡夫人带到安全地点继续审问。同时，联系罗伯托，告诉他情况有变，必须加快拆弹速度。"
+                        
+                        塞巴斯蒂安同意了计划："还有一件事——我黑进了SUV的行车电脑，找到了它最近的行程记录。其中一个目的地是郊外的一个废弃军事基地，看起来像是冷战时期的地下指挥中心。可能值得调查。"`,
+                        choices: [
+                            {
+                                text: "继续下一章",
+                                nextChapter: 5,
+                                nextScene: 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: "第五章：椭圆办公室的阴影",
+                scenes: [
+                    {
+                        text: `<div class="location">🏛️ 华盛顿特区 - 秘密安全屋</div>
+                        
+                        你和<span class="character diego">迭戈</span>成功将布兰卡夫人带到了预先准备的安全屋。通过耳机，你收到了各方的紧急报告。
+                        
+                        <span class="character roberto">罗伯托</span>在科罗拉多河的声音充满紧张："我们在尽力拆除炸弹，但时间太紧了。而且我们发现一个问题——炸弹的设计比想象的要复杂，即使切断与魔镜的连接，它们仍会在预设时间自动爆炸。"
+                        
+                        <span class="character alejandro">亚历杭德罗</span>的报告同样令人担忧："魔镜系统已经完全锁定，我无法重新获得控制权。而且，我刚刚发现一个加密的命令流——在两小时后，系统将同时向所有剩余的炸弹发送引爆信号。"`,
+                        choices: [
+                            {
+                                text: "继续审问布兰卡夫人",
+                                nextScene: 1
+                            },
+                            {
+                                text: "联系塞巴斯蒂安",
+                                nextScene: 2
+                            }
+                        ]
+                    },
+                    {
+                        text: `你走向被药物控制的布兰卡夫人，她的眼神涣散但仍有意识。
+                        
+                        "母亲，我们只剩下不到两小时了，" 你冷静地说，"所有的炸弹都将爆炸，成千上万的无辜者会死亡。即使你恨我，我知道你不想看到这么多平民伤亡。告诉我如何停止它。"
+                        
+                        布兰卡夫人的嘴角扭曲成一个微笑："你还不明白吗......这从来都不是关于杀人......而是关于权力和控制。恐惧是最强大的武器......当人们足够恐惧时......他们会交出一切自由，只求安全......"
+                        
+                        "谁是幕后黑手？" 你追问，"谁是'猎人'组织的真正领导者？"`,
+                        choices: [
+                            {
+                                text: "加大药物剂量",
+                                nextScene: 3
+                            },
+                            {
+                                text: "使用心理战术",
+                                nextScene: 4
+                            }
+                        ]
+                    },
+                    {
+                        text: `你联系正在追踪神秘人物的<span class="character sebastian">塞巴斯蒂安</span>："有什么进展吗？"
+                        
+                        "我追踪到那辆车去了五角大楼，" 塞巴斯蒂安回答，"但在那里失去了线索。不过我发现一件有趣的事——根据安保记录，国防部长今天根本没有去过五角大楼，尽管系统显示他的ID卡被使用了。"
+                        
+                        "有人冒充他，" 你分析道，"可能是为了获取高级别系统权限。你提到的那个废弃军事基地在哪里？"
+                        
+                        "弗吉尼亚州，距离华盛顿约一小时车程，" 塞巴斯蒂安提供了具体坐标，"根据旧档案，那是一个冷战时期的应急指挥中心，在90年代初被废弃。"`,
+                        choices: [
+                            {
+                                text: "让塞巴斯蒂安前往军事基地",
+                                nextScene: 5
+                            },
+                            {
+                                text: "继续审问布兰卡夫人",
+                                nextScene: 1
+                            }
+                        ]
+                    },
+                    {
+                        text: `你示意迭戈增加药物剂量。他犹豫了一下："这可能有风险。过量可能导致她的神经系统永久损伤。"
+                        
+                        "我们没有选择，" 你坚定地说，"数十万人的生命危在旦夕。"
+                        
+                        迭戈增加了药物剂量，布兰卡夫人的身体抽搐了一下，然后变得异常放松。
+                        
+                        "主控装置......" 她口齿不清地说，"在国土安全部......地下三层......B区域......一个伪装成服务器的装置......它连接着所有炸弹......"
+                        
+                        "谁是'猎人'的领导者？" 你追问。
+                        
+                        布兰卡夫人笑了，尽管在药物作用下，她的笑容显得扭曲而诡异："北美自由贸易协定......修正案......一切都在那里......"`,
+                        choices: [
+                            {
+                                text: "联系塞巴斯蒂安",
+                                nextScene: 6
+                            }
+                        ]
+                    },
+                    {
+                        text: `你换了一种策略，蹲下来与布兰卡夫人平视。
+                        
+                        "卡门，" 你轻声呼唤她的名字，不再称她为"母亲"，"我知道你也只是棋子。'猎人'组织利用了你，就像利用格林一样。他们让你认为你是合伙人，但实际上，你只是他们计划中的一个可牺牲的环节。"
+                        
+                        布兰卡夫人的眼中闪过一丝怒火，你知道你戳中了她的自尊心。
+                        
+                        "我没有被利用，" 她咬牙切齿地说，"这是我们共同的计划......我们将重塑整个北美......创造一个新的秩序......"
+                        
+                        "那为什么你不知道计划的全部内容？" 你反问，"为什么你不知道谁是最高领导者？他们不信任你，卡门。"`,
+                        choices: [
+                            {
+                                text: "继续心理攻势",
+                                nextScene: 7
+                            }
+                        ]
+                    },
+                    {
+                        text: `"塞巴斯蒂安，" 你迅速做出决定，"立即前往那个军事基地调查。可能是'猎人'组织的某种指挥中心。我和迭戈将尝试潜入国土安全部，找到布兰卡夫人提到的主控装置。"
+                        
+                        "明白，" 塞巴斯蒂安回答，"但你们确定要冒这个风险吗？国土安全部的安保级别仅次于白宫和五角大楼。"
+                        
+                        "我们别无选择，" 你坚定地说，"如果布兰卡夫人说的是真的，那么主控装置就在那里。那可能是我们阻止大规模伤亡的唯一希望。"
+                        
+                        "小心，" 塞巴斯蒂安说，"我会尽快前往军事基地，并保持联络。"`,
+                        choices: [
+                            {
+                                text: "准备前往国土安全部",
+                                nextScene: 8
+                            }
+                        ]
+                    },
+                    {
+                        text: `你立即联系塞巴斯蒂安，告知他布兰卡夫人透露的信息。
+                        
+                        "国土安全部的地下三层？" 他惊讶地重复，"那是最高安全级别的区域之一。如果主控装置真的在那里，渗透几乎是不可能的。"
+                        
+                        "但我们必须尝试，" 你坚定地说，"同时，布兰卡夫人提到了'北美自由贸易协定修正案'，你能查一下这是什么吗？"
+                        
+                        片刻后，塞巴斯蒂安回复："有一份标记为绝密的文件，确实是关于北美自由贸易协定的修正案。表面上看是贸易协议，但包含了一系列关于边境安全和执法权力的特殊条款。如果获得批准，它将授权一个名为'边境安全联合委员会'的机构在美墨边境两侧行使几乎无限的权力。"`,
+                        choices: [
+                            {
+                                text: "继续审问布兰卡夫人",
+                                nextScene: 7
+                            }
+                        ]
+                    },
+                    {
+                        text: `布兰卡夫人的冷笑渐渐消失，被某种不安取代。
+                        
+                        "他们向我保证......" 她喃喃自语，"墨西哥湾沿岸的完全控制权......禁毒行动的自主决定权......"
+                        
+                        "但他们没有告诉你全盘计划，对吗？" 你追问，"他们没有告诉你爆炸后会发生什么，谁会真正掌权。他们甚至可能打算在混乱后牺牲你，把所有罪行推到你头上。"
+                        
+                        布兰卡夫人的表情变得阴沉。药物和你的心理攻势共同作用，终于动摇了她的坚持。
+                        
+                        "国土安全部长......" 她终于说出一个名字，"他是关键人物之一......他和副总统......还有......还有那个贸易代表......"`,
+                        choices: [
+                            {
+                                text: "继续追问更多细节",
+                                nextScene: 9
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏢 华盛顿特区 - 前往国土安全部</div>
+                        
+                        你和迭戈将布兰卡夫人留在安全屋，确保她处于药物控制状态，然后前往国土安全部大楼。
+                        
+                        "我们需要一个计划，" 迭戈在路上说，"即使有你的CIA证件，也不可能直接进入地下三层。那个区域需要特殊权限。"
+                        
+                        你思考片刻："我有个想法。鉴于目前的危机状态，国土安全部已经启动了应急程序。这意味着所有关键技术人员都被召回。我们可以伪装成技术顾问，声称被派来检查通讯系统。"
+                        
+                        迭戈点点头："可行。我有足够的医疗和技术背景来支撑这个身份。但一旦进入地下，我们就需要迅速行动。"`,
+                        choices: [
+                            {
+                                text: "潜入国土安全部",
+                                nextScene: 10
+                            }
+                        ]
+                    },
+                    {
+                        text: `"告诉我更多关于这个修正案的事，" 你追问，"这是整个计划的核心吗？"
+                        
+                        布兰卡夫人的眼神变得空洞："修正案......是幌子......表面上是加强边境安全......实际是创建一个凌驾于两国法律之上的实体......一个既不对美国负责，也不对墨西哥负责的权力机构......"
+                        
+                        "为什么？" 你问，"为什么要这么做？"
+                        
+                        "控制，" 她艰难地说，"控制毒品流通......控制武器流通......控制人口流动......最终控制两国政府。恐怖袭击是借口......让公众接受极端措施......让国会通过修正案......"
+                        
+                        她的呼吸变得急促："而我......我只是他们需要的墨西哥联络人......一个可以在必要时被牺牲的棋子......"`,
+                        choices: [
+                            {
+                                text: "询问炸弹的主控装置",
+                                nextScene: 11
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏢 华盛顿特区 - 国土安全部</div>
+                        
+                        你们的伪装奏效了。在危机时刻，安保人员对技术人员的身份检查不那么严格，尤其是当你出示CIA顾问证件时。
+                        
+                        你们乘坐电梯到达地下二层，然后通过服务通道找到了通往地下三层的楼梯。
+                        
+                        "B区域应该在东侧，" 你低声对迭戈说，参考着从魔镜系统中获取的建筑平面图。
+                        
+                        走廊上的安保摄像头比预期的要多，但迭戈带来了一个小型电子干扰器，能够制造短暂的监控盲点。
+                        
+                        你们小心地穿过几道安全门，最终到达了B区域的入口——一扇需要双重生物识别的厚重金属门。`,
+                        choices: [
+                            {
+                                text: "使用技术手段破解",
+                                nextScene: 12
+                            },
+                            {
+                                text: "等待授权人员出现",
+                                nextScene: 13
+                            }
+                        ]
+                    },
+                    {
+                        text: `"主控装置，" 你直接问道，"它是什么样子的？如何关闭它？"
+                        
+                        布兰卡夫人的声音变得微弱："看起来像普通服务器......但有一个红色LED显示屏......显示所有炸弹的状态......需要三重权限才能访问......国土安全部长的生物识别......一个加密密钥......还有一个语音确认......"
+                        
+                        "有没有紧急关闭程序？" 你急切地问。
+                        
+                        她沉默了一会儿，似乎在与药物和自己的意志做斗争。最终，她低声说："有......机箱背面有一个物理开关......但它受到保护......触发它会激活防御机制......"
+                        
+                        "什么防御机制？" 你追问。
+                        
+                        "毒气......" 她几乎听不见地说，"神经毒素......足以杀死房间里的所有人......"`,
+                        choices: [
+                            {
+                                text: "联系塞巴斯蒂安",
+                                nextScene: 14
+                            }
+                        ]
+                    },
+                    {
+                        text: `迭戈从背包中取出一个定制的电子设备，连接到门边的安全面板上。
+                        
+                        "这可能需要几分钟，" 他专注地操作着设备，"我需要绕过生物识别系统，伪造授权信号。"
+                        
+                        你紧张地注视着走廊两端，担心有人会经过。时间一分一秒地流逝，每一刻都让你更加焦虑。
+                        
+                        终于，安全面板发出轻微的哔声，指示灯从红色变为绿色。金属门缓缓滑开，露出一个充满服务器架的大房间。
+                        
+                        "我们进去，" 你低声说，"快速找到那个主控装置。根据布兰卡夫人的描述，它应该有一个红色LED显示屏。"`,
+                        choices: [
+                            {
+                                text: "搜索主控装置",
+                                nextScene: 15
+                            }
+                        ]
+                    },
+                    {
+                        text: `你们决定采取更安全的方法，躲在一个服务壁龛中等待有权限的人员出现。
+                        
+                        几分钟后，一名穿着西装的男子走向安全门，他的胸卡显示他是通讯部门的高级主管。
+                        
+                        你给迭戈使了个眼色，迭戈理解你的意图，从口袋里取出一个小型喷雾装置。当那名主管正要进行虹膜扫描时，迭戈迅速接近，在他颈后喷了一下。
+                        
+                        男子晃了晃，倒在地上。迭戈立即扶住他，防止他摔伤，同时你迅速拿起他的胸卡，将他拖到服务壁龛中。
+                        
+                        "他会昏迷大约十五分钟，" 迭戈说，"我们必须在那之前完成任务。"
+                        
+                        你使用男子的胸卡和迭戈的技术手段通过了安全门，进入了服务器室。`,
+                        choices: [
+                            {
+                                text: "搜索主控装置",
+                                nextScene: 15
+                            }
+                        ]
+                    },
+                    {
+                        text: `你联系正在前往军事基地的<span class="character sebastian">塞巴斯蒂安</span>："我们有新情况。布兰卡夫人透露了更多细节，包括'猎人组织'的几个核心成员——国土安全部长、副总统和某个贸易代表。整个计划围绕着一份北美自由贸易协定的秘密修正案，旨在创建一个凌驾于两国法律之上的权力机构。"
+                        
+                        "这解释了很多事情，" 塞巴斯蒂安回应，"我在路上检查了一些文件。过去两年里，确实有关于修订贸易协定的谈判，表面上是为了加强边境安全和打击毒品走私。但如果布兰卡夫人说的是真的，这些修订实际上是为了创建一个不受约束的跨国执法机构。"
+                        
+                        "我和迭戈正在前往国土安全部，" 你告诉他，"试图找到主控装置。小心军事基地，可能有陷阱。"
+                        
+                        "我会的，" 塞巴斯蒂安说，"已经快到了。祝你们好运。"`,
+                        choices: [
+                            {
+                                text: "准备前往国土安全部",
+                                nextScene: 8
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🖥️ 国土安全部 - 服务器室</div>
+                        
+                        服务器室比想象中要大，数十排服务器架整齐地排列着，指示灯闪烁，散发着令人不安的蓝光。
+                        
+                        "分头找，" 你对迭戈说，"寻找任何带有红色LED显示屏的服务器。"
+                        
+                        你们迅速但谨慎地搜索着每一排服务器。时间紧迫，距离炸弹引爆只剩下不到一小时。
+                        
+                        终于，在房间最里端的角落，你发现了一个与其他设备不同的服务器单元。它略大一些，表面更加光滑，最重要的是，它有一个红色的LED显示屏，上面显示着倒计时和一系列数字代码。
+                        
+                        "迭戈！" 你低声呼叫，"我找到了！"`,
+                        choices: [
+                            {
+                                text: "检查主控装置",
+                                nextScene: 16
+                            }
+                        ]
+                    },
+                    {
+                        text: `迭戈迅速加入你，一起检查这个奇特的服务器。显示屏上的倒计时显示还有52分钟。
+                        
+                        "这就是主控装置，" 迭戈确认道，"它连接着所有炸弹，可以同时向它们发送引爆信号。"
+                        
+                        你仔细检查机箱，发现了布兰卡夫人提到的物理开关——它位于背面的一个保护面板下，需要钥匙才能打开。
+                        
+                        "我们没有钥匙，" 你咬牙道，"而且布兰卡夫人说触发它会释放神经毒素。"
+                        
+                        迭戈分析着情况："我们有几个选择。一，尝试黑入系统，但需要三重权限。二，强行触发物理开关，但要做好应对毒气的准备。三，尝试切断它的电源，但这可能激活备用电池。"`,
+                        choices: [
+                            {
+                                text: "尝试黑入系统",
+                                nextScene: 17
+                            },
+                            {
+                                text: "准备触发物理开关",
+                                nextScene: 18
+                            }
+                        ]
+                    },
+                    {
+                        text: `"让我们尝试黑入系统，" 你决定道，"不到万不得已，不要冒险触发毒气。"
+                        
+                        迭戈立即连接他的设备到服务器的诊断端口："我需要亚历杭德罗的帮助。他对魔镜系统比我更了解。"
+                        
+                        你联系亚历杭德罗，将情况快速告诉他。他的声音通过耳机传来："我会远程协助你们。服务器应该有一个隐藏的管理员接口，用于紧急维护。如果我能访问那个接口，可能可以暂时冻结倒计时。"
+                        
+                        在亚历杭德罗的指导下，迭戈找到了隐藏接口，开始输入一系列复杂的命令。
+                        
+                        "有进展了，" 他紧张地说，"但系统不断要求更高级别的授权。我们需要绕过这些安全措施。"`,
+                        choices: [
+                            {
+                                text: "继续尝试黑入系统",
+                                nextScene: 19
+                            }
+                        ]
+                    },
+                    {
+                        text: `"我们没有时间了，" 你看着倒计时，只剩下45分钟，"我们必须触发物理开关，冒险应对毒气。"
+                        
+                        迭戈从背包中取出两个便携式防毒面具："我早有准备。这些面具可以抵御大多数神经毒素，但作用时间有限，最多五分钟。"
+                        
+                        你们戴上面具，迭戈用一把小型电钻开始破解保护面板的锁。
+                        
+                        "一旦打开，立即按下开关，然后我们必须迅速撤离，" 他指示道，"毒气可能会在几秒钟内充满整个房间。"
+                        
+                        你点点头，心跳加速，准备好在面板打开的瞬间行动。`,
+                        choices: [
+                            {
+                                text: "触发开关并撤离",
+                                nextScene: 20
+                            }
+                        ]
+                    },
+                    {
+                        text: `在亚历杭德罗的远程协助下，迭戈继续尝试黑入系统。服务器上的红色显示屏不断闪烁，显示出各种错误信息和安全警告。
+                        
+                        "我们快成功了，" 迭戈兴奋地说，"亚历杭德罗找到了一个后门，是系统开发者留下的。"
+                        
+                        就在你们即将突破最后一道防线时，服务器突然发出刺耳的警报声，同时一个备用显示屏亮起，显示："检测到未授权访问。启动紧急协议。倒计时加速。"
+                        
+                        红色显示屏上的时间瞬间从42分钟变为5分钟。
+                        
+                        "该死！" 迭戈咒骂，"系统有一个我们不知道的防御机制。现在我们只剩5分钟了！"`,
+                        choices: [
+                            {
+                                text: "立即触发物理开关",
+                                nextScene: 20
+                            }
+                        ]
+                    },
+                    {
+                        text: `没有时间犹豫了！迭戈迅速打开保护面板，你立即按下物理开关。
+                        
+                        一声机械的咔嗒声后，服务器开始关闭，红色显示屏逐渐变暗。但同时，天花板上的几个喷嘴打开，开始喷射一种无色的气体。
+                        
+                        "撤离！现在！" 你大喊，抓住迭戈的手臂向门口奔去。
+                        
+                        你们冲出服务器室，砰地关上门，防止毒气扩散。即使隔着防毒面具，你们也能感觉到一阵刺痛感——这种毒气显然强度极高。
+                        
+                        迭戈看着手持设备确认："主控装置已经关闭。它不能再向炸弹发送引爆信号了。但这不意味着所有炸弹都安全了——那些已经启动自毁程序的炸弹仍然会爆炸。"`,
+                        choices: [
+                            {
+                                text: "联系罗伯托",
+                                nextScene: 21
+                            }
+                        ]
+                    },
+                    {
+                        text: `你立即联系<span class="character roberto">罗伯托</span>："主控装置已关闭，但部分炸弹可能仍会爆炸。你那边情况如何？"
+                        
+                        "我们已经拆除了科罗拉多河流域的主要装置，" 罗伯托回答，声音因疲惫而嘶哑，"但盐湖城的情况不容乐观。那里的装置太多，分散在太多地点。我们可能无法全部拆除。"
+                        
+                        "有多少爆炸无法避免？" 你紧张地问。
+                        
+                        "至少三到五处，" 罗伯托估计，"主要集中在'禁毒成果展'周围。我们正在疏散平民，但时间太紧了。"
+                        
+                        你做出艰难决定："集中精力疏散人员，优先保证生命安全。同时，收集所有证据，我们需要向世界证明这一切。"`,
+                        choices: [
+                            {
+                                text: "联系塞巴斯蒂安",
+                                nextScene: 22
+                            }
+                        ]
+                    },
+                    {
+                        text: `你迅速联系<span class="character sebastian">塞巴斯蒂安</span>："主控装置已关闭，但部分炸弹仍会爆炸。你到达军事基地了吗？"
+                        
+                        "刚到，" 塞巴斯蒂安的声音透过通讯器传来，"这里很奇怪。基地似乎近期被使用过，但现在空无一人。我在中央控制室发现了一些有趣的东西——一张圆桌，周围摆放着十二把椅子，每把椅子前都有一个名牌，标记着'猎人一号'到'猎人十二号'。"
+                        
+                        "十二个人？" 你震惊地说，"这比我们想象的要大。"
+                        
+                        "还有更重要的发现，" 塞巴斯蒂安继续道，"墙上有一个大型显示屏，显示着全国各地的军事部署和警方行动。看起来像是为了应对即将发生的混乱。他们真的准备利用爆炸制造的恐慌，接管政府关键部门。"`,
+                        choices: [
+                            {
+                                text: "让塞巴斯蒂安搜集证据",
+                                nextScene: 23
+                            }
+                        ]
+                    },
+                    {
+                        text: `"塞巴斯蒂安，收集所有可能的证据，" 你命令道，"文件、电子记录、视频——任何能证明'猎人组织'存在和计划的东西。我们需要向公众揭露真相。"
+                        
+                        "已经在进行了，" 他回答，"但有个问题——这里似乎安装了某种自毁系统。我刚才检查电脑时触发了一个倒计时，显示十五分钟。我认为整个基地将在那时自毁，销毁所有证据。"
+                        
+                        "尽可能多地收集，然后立即撤离，" 你坚定地说，"你的安全更重要。我们已经有布兰卡夫人和国土安全部的证据。"
+                        
+                        就在这时，一阵强烈的震动传来，你几乎站立不稳。
+                        
+                        "发生了什么？" 迭戈惊慌地问。
+                        
+                        通讯器里传来罗伯托急促的声音："盐湖城的第一个炸弹刚刚爆炸！比预期的提前了！剩下的可能也会提前！"`,
+                        choices: [
+                            {
+                                text: "继续下一章",
+                                nextChapter: 6,
+                                nextScene: 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: "第六章：科罗拉多河的爆炸",
+                scenes: [
+                    {
+                        text: `<div class="location">🏢 国土安全部</div>
+                        
+                        盐湖城的爆炸消息让你和<span class="character diego">迭戈</span>意识到情况比想象的更加紧急。你们必须立即离开国土安全部大楼。
+                        
+                        "我们需要回到安全屋，" 你对迭戈说，"确保布兰卡夫人安全。她是我们唯一的活证人，可以证明整个阴谋。"
+                        
+                        刚走出大楼，你们就收到了来自<span class="character roberto">罗伯托</span>的最新情况："盐湖城的情况很糟糕。第一个爆炸已经造成大量伤亡，人们陷入恐慌。更糟的是，有三架军用直升机出现在展览中心上空，开始向建筑物射击！"
+                        
+                        "什么？" 你震惊地问，"谁会攻击自己的城市？"
+                        
+                        "看起来像是清除行动，" 罗伯托分析道，"他们不想留下任何证据。"`,
+                        choices: [
+                            {
+                                text: "返回安全屋",
+                                nextScene: 1
+                            },
+                            {
+                                text: "联系其他兄弟",
+                                nextScene: 2
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏠 华盛顿特区 - 安全屋</div>
+                        
+                        你们快速返回安全屋，但一进门就感觉到不对劲——门锁被撬过，屋内一片狼藉。
+                        
+                        "布兰卡夫人！" 你呼喊着冲向之前关押她的房间。
+                        
+                        房间空了，只剩下一把椅子和散落的绳索。墙上，用红色液体写着一行字："游戏还没结束，我的小雪花。"
+                        
+                        "该死！" 你咒骂道，"有人救走了她。一定是'猎人组织'的成员。"
+                        
+                        迭戈检查了房间："没有打斗痕迹。她可能是被专业人士带走的，或者..."
+                        
+                        "或者她一直有后备计划，" 你完成了他的句子，"从一开始就在演戏。"`,
+                        choices: [
+                            {
+                                text: "联系塞巴斯蒂安",
+                                nextScene: 3
+                            }
+                        ]
+                    },
+                    {
+                        text: `你立即联系其他兄弟，确认他们的状态。
+                        
+                        "<span class="character carlos">卡洛斯</span>，<span class="character julio">胡里奥</span>，你们在盐湖城的情况如何？"
+                        
+                        "非常危险，" 卡洛斯回答，声音中充满紧张，"我们正在尝试疏散尽可能多的人，但直升机的攻击使情况变得极其混乱。他们不只是在清除证据，他们是在制造恐慌！"
+                        
+                        "我们发现了一些奇怪的事情，" 胡里奥补充道，"那些直升机上没有任何标识，不像是常规军队或执法部门的。这更像是某种秘密行动。"
+                        
+                        "<span class="character alejandro">亚历杭德罗</span>，<span class="character manuel">马努埃尔</span>，魔镜系统显示什么？"
+                        
+                        "系统正在大规模删除数据，" 亚历杭德罗报告，"但我们正在尽可能多地保存。有一件事很奇怪——直升机的行动似乎是由一个不同于主系统的命令链发出的。"`,
+                        choices: [
+                            {
+                                text: "返回安全屋",
+                                nextScene: 1
+                            }
+                        ]
+                    },
+                    {
+                        text: `你立即联系<span class="character sebastian">塞巴斯蒂安</span>："布兰卡夫人被带走了。安全屋被入侵，可能是'猎人组织'的人。你那边情况如何？"
+                        
+                        "我刚刚撤出军事基地，" 塞巴斯蒂安气喘吁吁地回答，"在最后时刻找到了一些关键文件。这个'猎人组织'比我们想象的要庞大得多。它不仅包括美国政府高层，还有墨西哥官员、跨国公司高管和军事承包商。"
+                        
+                        "他们的真正目标是什么？" 你追问。
+                        
+                        "根据这些文件，" 塞巴斯蒂安继续道，"他们计划利用爆炸造成的混乱，推动一系列极端安全措施，包括通过那个修正案。但更可怕的是，他们似乎有一个'B计划'——如果无法通过政治手段获得控制权，就制造更大规模的袭击，迫使政府宣布戒严。"`,
+                        choices: [
+                            {
+                                text: "分析局势",
+                                nextScene: 4
+                            }
+                        ]
+                    },
+                    {
+                        text: `你和迭戈迅速分析着局势，将各方的情报整合在一起。
+                        
+                        "他们的计划已经部分成功了，" 你沉重地说，"盐湖城的爆炸将引发全国范围的恐慌，而那些没有标识的直升机攻击会被归咎于恐怖分子。'猎人协议'已经启动，他们获得了特殊权力。"
+                        
+                        "但我们已经关闭了主控装置，" 迭戈指出，"这意味着大部分炸弹不会爆炸。他们的计划被削弱了。"
+                        
+                        "是的，但他们仍然可以利用现有的混乱，" 你担忧地说，"尤其是现在布兰卡夫人又回到了他们手中。他们可能会让她作为替罪羊，将所有责任推给她和她的毒品集团。"
+                        
+                        就在这时，所有电视频道突然插播紧急新闻——总统将发表全国讲话，应对"前所未有的恐怖威胁"。`,
+                        choices: [
+                            {
+                                text: "观看总统讲话",
+                                nextScene: 5
+                            }
+                        ]
+                    },
+                    {
+                        text: `你们立即打开电视，看到一脸凝重的总统站在椭圆办公室内。
+                        
+                        "我的美国同胞们，" 他开始讲话，"今天，我们的国家遭受了卑鄙的恐怖袭击。盐湖城的爆炸已经造成数百人死亡，数千人受伤。这不是偶然事件，而是一个精心策划的攻击计划的一部分。"
+                        
+                        总统继续道："根据可靠情报，这些袭击由一个国际毒品集团策划，目的是报复我们的禁毒行动。更令人担忧的是，我们收到情报表明，类似的爆炸装置可能已经安装在全国各地的水源设施附近。"
+                        
+                        "因此，经过与国家安全团队的紧急磋商，我已经签署行政命令，授权启动'猎人协议'——一项专门针对此类危机的应急预案。这将赋予执法部门特殊权力，以迅速应对和消除这一威胁。"`,
+                        choices: [
+                            {
+                                text: "分析总统讲话",
+                                nextScene: 6
+                            }
+                        ]
+                    },
+                    {
+                        text: `"他们赢了第一回合，" 你沮丧地说，"总统已经公开授权'猎人协议'，给了他们合法的掩护。"
+                        
+                        迭戈摇头："但总统显然不知道协议的真相。他被蒙在鼓里，认为这只是一项反恐措施。"
+                        
+                        "我们必须揭露真相，" 你坚定地说，"让世界知道这一切都是'猎人组织'的阴谋。我们有证据——布兰卡夫人的供词、军事基地的文件、魔镜系统的数据。"
+                        
+                        "但如何让这些证据公之于众？" 迭戈问，"常规媒体渠道可能已经被他们控制或监视。"
+                        
+                        你思考片刻："亚历杭德罗可以帮助我们。如果他能黑入全国广播系统，我们可以直接向公众揭露真相。"`,
+                        choices: [
+                            {
+                                text: "联系亚历杭德罗",
+                                nextScene: 7
+                            }
+                        ]
+                    },
+                    {
+                        text: `你立即联系<span class="character alejandro">亚历杭德罗</span>："我需要你接管全国主要媒体的电视信号。我们必须向世界揭露真相。"
+                        
+                        "这很复杂，但可行，" 亚历杭德罗回应，"不过有几个问题：一，我最多只能控制信号几分钟；二，这会立即暴露我们的位置；三，一旦做了这件事，就没有回头路了。"
+                        
+                        你毫不犹豫："做吧。准备在一小时后执行。我需要时间整理证据和准备讲话。"
+                        
+                        "明白，" 亚历杭德罗说，"马努埃尔和我会处理技术细节。但你应该知道，盐湖城的情况更加恶化了。第二波爆炸刚刚发生，造成的破坏比第一次更严重。"
+                        
+                        你的心一沉："罗伯托他们还好吗？"
+                        
+                        "暂时失去联系，" 亚历杭德罗声音低沉，"最后的报告显示他们正在试图救助被困人员。"`,
+                        choices: [
+                            {
+                                text: "准备揭露真相",
+                                nextScene: 8
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏠 华盛顿特区 - 安全屋</div>
+                        
+                        接下来的一小时里，你和迭戈紧张地整理所有证据——布兰卡夫人的供词录音、从国土安全部获取的数据、魔镜系统的截图，以及塞巴斯蒂安从军事基地带回的文件。
+                        
+                        "这些足够证明阴谋的存在，" 你说，"但我们需要更有力的东西来说服公众。他们可能会将这一切视为伪造的。"
+                        
+                        就在这时，塞巴斯蒂安到达安全屋，带来了一个意外发现："看这个，" 他递给你一个小型硬盘，"军事基地的监控录像。它显示了'猎人组织'的几次会议，包括布兰卡夫人、格林，以及几名高级政府官员。他们明确讨论了如何利用爆炸事件推动政变。"
+                        
+                        "这太完美了，" 你欣喜地说，"有了这个，没人能否认阴谋的存在。"`,
+                        choices: [
+                            {
+                                text: "准备曝光演讲",
+                                nextScene: 9
+                            }
+                        ]
+                    },
+                    {
+                        text: `时间临近，你站在即将被全国直播的摄像机前，深吸一口气。
+                        
+                        "你确定要这么做吗？" 迭戈严肃地问，"一旦开始，你将成为'猎人组织'的头号目标。他们会不惜一切代价杀死你。"
+                        
+                        "我确定，" 你坚定地说，"这是为我母亲，为七个兄弟的母亲们，为所有因这个阴谋而死的人讨回公道的唯一方式。"
+                        
+                        通讯器里传来亚历杭德罗的声音："系统已准备就绪。我们将在30秒后接管全国主要电视网络的信号。准备好了吗？"
+                        
+                        "准备好了，" 你回答，整理思绪，准备向全国揭露"猎人组织"的真相。`,
+                        choices: [
+                            {
+                                text: "开始全国讲话",
+                                nextScene: 10
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">📺 全国直播</div>
+                        
+                        全国各地的电视屏幕突然闪烁，原本播放的节目被中断，你的形象出现在屏幕上。
+                        
+                        "美国公民们，" 你开始讲话，声音清晰而坚定，"我的名字是玛利亚·布兰卡，也被称为白雪公主。今天发生在盐湖城的爆炸不是恐怖分子的袭击，而是一个被称为'猎人组织'的秘密集团策划的阴谋的一部分。"
+                        
+                        你简明扼要地解释了整个计划——如何利用混合了军用炸药的毒品，在全国范围内布置炸弹；如何利用爆炸造成的恐慌，推动极端安全措施；以及"猎人协议"的真正目的——创建一个不受约束的权力机构，凌驾于民主和法律之上。
+                        
+                        "这不仅仅是一场针对毒品的战争，" 你对全国乃至全世界的观众说，"这是一场针对自由和民主的战争。'猎人组织'试图利用恐惧和混乱，创造一个他们可以不受约束地控制的世界。今天在盐湖城死去的数百人不是毒贩的受害者，而是这个阴谋的牺牲品。"`,
+                        choices: [
+                            {
+                                text: "展示关键证据",
+                                nextScene: 11
+                            }
+                        ]
+                    },
+                    {
+                        text: `你开始展示收集的证据——军事基地的监控视频显示政府高官们讨论如何利用爆炸事件；魔镜系统的数据显示炸弹的位置和控制机制；布兰卡夫人的供词揭露了整个计划的细节。
+                        
+                        "这些不是虚构的指控，" 你强调，"这些是确凿的证据，证明有一群人正试图利用恐惧来控制你们。"
+                        
+                        你特别指出："'猎人协议'不是为了保护公民，而是为了控制他们。它授权创建一个不受任何民主监督的执法机构，可以在美墨边境两侧随意行动，不受任何法律约束。"
+                        
+                        "我向你们展示这些，是因为你们有权知道真相。你们有权了解谁在操纵你们的恐惧，谁在利用悲剧来谋取私利。"
+                        
+                        通讯器里，亚历杭德罗紧急提醒："信号正在被切断！我们只剩下不到一分钟！"`,
+                        choices: [
+                            {
+                                text: "结束讲话",
+                                nextScene: 12
+                            }
+                        ]
+                    },
+                    {
+                        text: `感到时间紧迫，你迅速总结："所有这些证据都将被上传到互联网上，供所有人查看和验证。我呼吁每一位关心自由和正义的公民，不要被恐惧蒙蔽，不要接受以安全为名义的暴政。"
+                        
+                        "最后，我要向'猎人组织'的成员们发出警告：我们知道你们是谁，我们有证据证明你们的罪行。无论你们躲在多高的权力位置，正义终将到来。"
+                        
+                        就在你说完最后一个字时，信号被切断，屏幕回到正常播放的节目。但你知道，种子已经播下——全国各地的人们都听到了真相，看到了证据。
+                        
+                        "成功了，" 迭戈松了口气，"但我们必须立即撤离。他们会定位这里。"`,
+                        choices: [
+                            {
+                                text: "迅速撤离",
+                                nextScene: 13
+                            }
+                        ]
+                    },
+                    {
+                        text: `你们迅速收拾必要的设备和证据，准备撤离安全屋。就在这时，<span class="character roberto">罗伯托</span>的通讯终于恢复了。
+                        
+                        "白雪，我们看到你的直播了，" 他的声音透过静电噪音传来，"干得好。盐湖城的情况很复杂，但我们安全撤离了。有个好消息——我们保住了所有关键证据，包括CL-20炸弹的残骸和完整的运作记录。"
+                        
+                        "伤亡情况如何？" 你担忧地问。
+                        
+                        "目前确认约三百人死亡，数千人受伤，" 罗伯托沉重地说，"但如果不是我们提前疏散，会更糟。马努埃尔在救人时受了重伤，但医生说他会康复。"
+                        
+                        你感到一阵难以言喻的复杂情绪——解脱、悲伤、愤怒、决心，所有这些交织在一起。`,
+                        choices: [
+                            {
+                                text: "制定下一步计划",
+                                nextScene: 14
+                            }
+                        ]
+                    },
+                    {
+                        text: `你们撤离安全屋后，在一个预先设定的备用地点集合。<span class="character sebastian">塞巴斯蒂安</span>和<span class="character diego">迭戈</span>已经在那里等候，紧张地监控着各种新闻频道和社交媒体。
+                        
+                        "反应开始了，" 塞巴斯蒂安指着屏幕，"社交媒体上爆发了激烈讨论，人们开始质疑官方的叙述。一些独立媒体已经开始深入调查'猎人协议'和相关政府官员。"
+                        
+                        "但官方反应也很迅速，" 迭戈指出，"白宫刚刚发表声明，称你的指控是'危险的阴谋论'，旨在干扰反恐行动。他们还暗示你与盐湖城爆炸有关。"
+                        
+                        "这在预料之中，" 你平静地说，"他们会尝试抹黑我，将我描绘成一个疯狂的恐怖分子。但重要的是，真相已经传播出去了。人们开始提问，开始怀疑。"`,
+                        choices: [
+                            {
+                                text: "制定最终计划",
+                                nextScene: 15
+                            }
+                        ]
+                    },
+                    {
+                        text: `你召集所有能联系上的兄弟，通过安全通讯频道举行了紧急会议。
+                        
+                        "战斗才刚刚开始，" 你对他们说，"'猎人组织'不会轻易放弃。他们会反击，可能会变得更加危险。我们需要一个新计划。"
+                        
+                        "首先，我们需要保护证据和证人，" <span class="character roberto">罗伯托</span>建议，"确保它们能被正确的人看到。"
+                        
+                        "<span class="character alejandro">亚历杭德罗</span>和我可以继续追踪魔镜系统的残余，" <span class="character manuel">马努埃尔</span>虚弱但坚定地说，"那里可能还有更多关于'猎人组织'的信息。"
+                        
+                        "<span class="character julio">胡里奥</span>和我会尝试找到布兰卡夫人，" <span class="character carlos">卡洛斯</span>说，"她仍然是关键证人。"
+                        
+                        你点点头，思考着最关键的问题："但我们还需要找出'猎人组织'的真正领导者。格林只是一个中层人物，布兰卡夫人也只是一个执行者。谁是幕后黑手？"`,
+                        choices: [
+                            {
+                                text: "继续下一章",
+                                nextChapter: 7,
+                                nextScene: 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: "第七章：白宫战情室",
+                scenes: [
+                    {
+                        text: `<div class="location">🏢 华盛顿特区 - 隐蔽公寓</div>
+                        
+                        你的全国讲话后的48小时内，全国陷入了前所未有的混乱。盐湖城的爆炸和你揭露的阴谋在政治和公共领域引发了地震般的冲击。
+                        
+                        社交媒体和独立新闻平台充斥着对"猎人协议"的讨论和分析，越来越多的证据被发掘出来，支持你的指控。同时，官方媒体则努力反击，称这是一场精心策划的阴谋论，目的是破坏国家安全。
+                        
+                        你和剩余的团队躲在华盛顿一处隐蔽的公寓里，密切关注事态发展。`,
+                        choices: [
+                            {
+                                text: "查看最新情报",
+                                nextScene: 1
+                            },
+                            {
+                                text: "联系盐湖城的兄弟",
+                                nextScene: 2
+                            }
+                        ]
+                    },
+                    {
+                        text: `<span class="character alejandro">亚历杭德罗</span>向你展示最新收集的情报："事情正在升级。总统已经下令对'猎人协议'进行内部调查，同时暂停了部分措施的实施。这明显激怒了'猎人组织'的成员。"
+                        
+                        "有迹象表明，他们正在加速计划，" <span class="character sebastian">塞巴斯蒂安</span>补充道，"根据我们截获的通讯，'猎人组织'计划在未来24小时内执行某种'应急措施'。"
+                        
+                        "具体是什么措施？" 你紧张地问。
+                        
+                        "不确定，" 亚历杭德罗摇头，"但通讯中反复提到了'白宫'和'水晶宫'。我怀疑他们计划对白宫发动某种攻击。"
+                        
+                        你的心一沉："他们要制造更大的混乱，以便完全接管政府。"`,
+                        choices: [
+                            {
+                                text: "制定应对计划",
+                                nextScene: 3
+                            }
+                        ]
+                    },
+                    {
+                        text: `你联系在盐湖城的<span class="character roberto">罗伯托</span>和<span class="character carlos">卡洛斯</span>："情况如何？找到布兰卡夫人的线索了吗？"
+                        
+                        "还没有，" 罗伯托回答，"但我们发现了一些有趣的事情。在爆炸后进行攻击的那些直升机属于一家名为'边境安全解决方案'的私人军事承包商。这家公司表面上为政府提供边境安全服务，但实际上似乎与'猎人组织'有密切联系。"
+                        
+                        "更重要的是，" 卡洛斯补充，"这家公司的所有者是一个名为兰德尔·霍金斯的人——他恰好是即将被任命为新的北美自由贸易协定修正案特使的候选人。"
+                        
+                        "这可能是关键人物，" 你思考着，"一位能够同时影响政策和指挥私人军队的人，正是'猎人组织'理想的领导者。"`,
+                        choices: [
+                            {
+                                text: "查找霍金斯的更多信息",
+                                nextScene: 4
+                            }
+                        ]
+                    },
+                    {
+                        text: `"如果他们真的计划攻击白宫，我们必须立即行动，" 你果断地说，"我们需要警告总统，并阻止这次攻击。"
+                        
+                        "但如何接近总统？" <span class="character diego">迭戈</span>困惑地问，"整个华盛顿现在都在寻找我们。而且，即使我们能接触到他，他凭什么相信我们？"
+                        
+                        你思考片刻："我们需要更多确凿的证据，证明霍金斯与'猎人组织'的联系，以及他们计划攻击白宫的意图。亚历杭德罗，你能黑入'边境安全解决方案'的系统吗？"
+                        
+                        "难度很大，但可以尝试，" 亚历杭德罗点头，"他们的安全系统肯定很先进，但每个系统都有弱点。"
+                        
+                        "同时，" 你转向塞巴斯蒂安，"我需要你与你在特勤局的联系人沟通，试图建立与总统直接对话的渠道。"`,
+                        choices: [
+                            {
+                                text: "等待信息收集",
+                                nextScene: 5
+                            }
+                        ]
+                    },
+                    {
+                        text: `<span class="character alejandro">亚历杭德罗</span>立即开始搜索兰德尔·霍金斯的更多信息，黑入各种数据库和档案系统。
+                        
+                        "找到了一些有趣的东西，" 他很快报告，"霍金斯不仅拥有'边境安全解决方案'，还控制着多家与国防承包、边境安全和监控技术相关的公司。更重要的是，他与副总统、国土安全部长和几位关键参议员有密切的个人和财务联系。"
+                        
+                        "这符合拼图，" 你分析道，"他位于军事、政治和经济的交叉点，拥有资源、影响力和动机来领导'猎人组织'。"
+                        
+                        亚历杭德罗继续挖掘："根据他的行程记录，霍金斯现在在华盛顿。他昨天参加了一个在五角大楼的高级别会议，主题是'北美安全合作'。"`,
+                        choices: [
+                            {
+                                text: "尝试追踪霍金斯",
+                                nextScene: 6
+                            }
+                        ]
+                    },
+                    {
+                        text: `几小时后，<span class="character alejandro">亚历杭德罗</span>和<span class="character sebastian">塞巴斯蒂安</span>带回了令人担忧的消息。
+                        
+                        "我成功进入了'边境安全解决方案'的部分系统，" 亚历杭德罗说，"他们确实在计划某种行动。代号为'水晶清洗'，预定在今晚执行。细节很少，但涉及部署多支小队到华盛顿市中心。"
+                        
+                        "我联系了特勤局的朋友，" 塞巴斯蒂安面色凝重，"情况比我们想象的更糟。白宫安保已经被悄悄改组，许多经验丰富的特勤局特工被调离，换成了不明背景的新人员。我的联系人怀疑这些人可能来自私人安保公司。"
+                        
+                        "他们已经渗透到白宫安保系统了，" 你震惊地说，"这不只是攻击，这是接管！"`,
+                        choices: [
+                            {
+                                text: "制定紧急计划",
+                                nextScene: 7
+                            }
+                        ]
+                    },
+                    {
+                        text: `你决定尝试追踪霍金斯的下落。
+                        
+                        "<span class="character sebastian">塞巴斯蒂安</span>，利用你的特勤局联系人查看霍金斯最近的活动。<span class="character alejandro">亚历杭德罗</span>，监控他的通讯和银行活动。我们需要知道他现在在哪里，计划什么。"
+                        
+                        两人立即行动起来。几小时的紧张工作后，塞巴斯蒂安带回了重要信息："根据安保记录，霍金斯今天下午有一个在国土安全部的会议，随后计划参加在国会山举行的一个私人晚宴。"
+                        
+                        "晚宴可能是幌子，" 你猜测，"真正的计划可能是在那之后执行。我们需要跟踪他，看看他真正去了哪里。"`,
+                        choices: [
+                            {
+                                text: "监视国土安全部",
+                                nextScene: 8
+                            }
+                        ]
+                    },
+                    {
+                        text: `"我们没有时间了，" 你紧急制定计划，"必须立即行动。首先，我们需要警告总统。<span class="character sebastian">塞巴斯蒂安</span>，无论如何，你必须联系上你的特勤局朋友，告诉他们白宫安保已被渗透。"
+                        
+                        "然后，我们需要掌握霍金斯的确切位置，" 你转向<span class="character alejandro">亚历杭德罗</span>，"继续监控他的通讯和动向。"
+                        
+                        "<span class="character diego">迭戈</span>和我会尝试接近白宫，评估情况并寻找可能的进入点。如果我们的猜测正确，霍金斯计划今晚在白宫内部发动某种攻击或政变。"
+                        
+                        "但如果白宫安保已被渗透，直接接近可能极其危险，" 迭戈担忧地说。
+                        
+                        "我们别无选择，" 你坚定地回答，"数百万人的生命和国家的未来都在危险中。我们必须阻止他们。"`,
+                        choices: [
+                            {
+                                text: "分头行动",
+                                nextScene: 9
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏢 华盛顿特区 - 国土安全部外</div>
+                        
+                        你和<span class="character diego">迭戈</span>乔装后，在国土安全部大楼外设置了监视点。下午三点左右，你们看到霍金斯——一个高大、白发的男子——离开大楼，登上一辆黑色SUV。
+                        
+                        "跟上他，" 你命令道，迅速启动准备好的摩托车。
+                        
+                        SUV没有前往国会山，而是直接驶向乔治城方向。经过一系列复杂的转弯后，车辆停在了一栋不起眼的褐石建筑前——正是布兰卡夫人的秘密据点之一。
+                        
+                        "他去见布兰卡夫人了，" 你低声说，"或者获取她留下的某些东西。"
+                        
+                        霍金斯和两名保镖进入建筑后不到十分钟就出来了，手中拿着一个金属箱子。SUV随后直奔白宫方向。`,
+                        choices: [
+                            {
+                                text: "跟踪SUV",
+                                nextScene: 10
+                            },
+                            {
+                                text: "调查褐石建筑",
+                                nextScene: 11
+                            }
+                        ]
+                    },
+                    {
+                        text: `你们迅速分头行动。<span class="character sebastian">塞巴斯蒂安</span>去联系特勤局的可靠人员，<span class="character alejandro">亚历杭德罗</span>继续监控霍金斯的通讯，而你和<span class="character diego">迭戈</span>前往白宫附近。
+                        
+                        当你们接近白宫时，发现安保异常森严——不仅有通常的特勤局特工，还有许多身着平民服装但明显带有军事训练痕迹的人员。
+                        
+                        "那些不是常规安保，" 迭戈低声说，"看他们的站姿和警觉性，更像是特种部队或私人军事承包商。"
+                        
+                        通过望远镜，你观察到白宫西翼附近有不寻常的活动——几辆不明标识的黑色厢型车停在那里，人员进进出出。
+                        
+                        "他们已经在部署了，" 你紧张地说，"无论计划是什么，今晚就会执行。"`,
+                        choices: [
+                            {
+                                text: "联系塞巴斯蒂安",
+                                nextScene: 12
+                            }
+                        ]
+                    },
+                    {
+                        text: `你们决定继续跟踪SUV，它直接驶向白宫。在西门检查站，车辆顺利通过，显然霍金斯拥有高级别通行权限。
+                        
+                        "我们无法跟进白宫，" 迭戈说，"但至少确认了他的目的地。"
+                        
+                        "是时候联系其他人了，" 你拿出加密手机，"我们需要一个进入白宫的计划。"
+                        
+                        就在这时，<span class="character sebastian">塞巴斯蒂安</span>传来紧急消息："情况紧急！我的特勤局联系人刚刚被停职，原因是'安全疑虑'。但在被带走前，他告诉我今晚在白宫有一个特别会议——总统、副总统、国土安全部长和几位关键内阁成员都将出席。主题是'猎人协议'的后续措施。"
+                        
+                        你立刻明白了："这就是他们的计划。利用这个会议，一次性控制或清除所有高层。我们必须立即行动！"`,
+                        choices: [
+                            {
+                                text: "制定白宫渗透计划",
+                                nextScene: 13
+                            }
+                        ]
+                    },
+                    {
+                        text: `霍金斯离开后，你和迭戈决定调查这栋褐石建筑。利用塞巴斯蒂安提供的工具，你们成功绕过安全系统，进入大楼。
+                        
+                        内部空荡荡的，但明显有人最近来过。在地下室，你们发现了魔镜系统的残余设备，以及一个被打开的保险箱。
+                        
+                        "他们拿走了什么？" 迭戈检查着保险箱。
+                        
+                        你在角落发现了一小片纸，上面有手写的部分内容："……激活代码：水晶宫坠落……主要目标：椭圆办公室……次要目标：战情室……"
+                        
+                        "这是一个行动计划的一部分，" 你震惊地说，"他们计划在白宫内部发动袭击！目标是总统和关键内阁成员！"
+                        
+                        你立即联系其他人："霍金斯拿走了某种激活代码。他们计划今晚在白宫采取行动，可能是暗杀或政变。"`,
+                        choices: [
+                            {
+                                text: "前往白宫",
+                                nextScene: 14
+                            }
+                        ]
+                    },
+                    {
+                        text: `你立即联系<span class="character sebastian">塞巴斯蒂安</span>："情况如何？能联系上可靠的特勤局人员吗？"
+                        
+                        "很困难，" 塞巴斯蒂安回答，声音紧张，"我的主要联系人被停职，其他人要么不接我的电话，要么不敢行动。但我得到一条重要信息——今晚七点在战情室有一个紧急会议，主题是评估'猎人协议'和应对全国抗议。总统、副总统和主要内阁成员都将出席。"
+                        
+                        "这就是他们的目标，" 你意识到，"集中所有高层领导，一次性控制或清除。我们必须警告总统。"
+                        
+                        "但如何接近他？" 塞巴斯蒂安问，"白宫现在像堡垒一样。"
+                        
+                        你思考了一会儿："我有个计划。但需要亚历杭德罗的帮助，还有罗伯托收集的证据。"`,
+                        choices: [
+                            {
+                                text: "详细说明计划",
+                                nextScene: 15
+                            }
+                        ]
+                    },
+                    {
+                        text: `你们迅速制定了一个大胆的白宫渗透计划。
+                        
+                        "我需要伪装成一名媒体记者，" 你说，"亚历杭德罗可以黑入白宫记者证系统，为我创建一个临时身份。迭戈和塞巴斯蒂安将扮演技术支持人员。"
+                        
+                        "但即使进入白宫，如何接近战情室？" 迭戈问，"那里的安保是最严格的。"
+                        
+                        "我们需要制造一个分散注意力的事件，" 你解释，"亚历杭德罗可以触发白宫通讯系统的故障，迫使技术人员——也就是你们——被召唤修复。而我将利用混乱接近战情室。"
+                        
+                        "风险极高，" 塞巴斯蒂安警告，"如果被发现，我们可能面临叛国罪指控。"
+                        
+                        "我知道，" 你严肃地说，"但如果不行动，今晚可能会发生政变。数百万人的生命和国家的未来都取决于我们。"`,
+                        choices: [
+                            {
+                                text: "执行白宫渗透计划",
+                                nextScene: 16
+                            }
+                        ]
+                    },
+                    {
+                        text: `收集到的情报让你意识到情况紧急，你们立即前往白宫方向。
+                        
+                        "我们需要一个进入白宫的计划，" 你在路上对迭戈说，"直接闯入是不可能的。"
+                        
+                        亚历杭德罗通过通讯器提供了一个意想不到的信息："我黑入了白宫访客系统。今晚有一个媒体简报会，几家主要新闻机构的记者被允许入内，报道关于'猎人协议'的最新进展。"
+                        
+                        "这是我们的机会，" 你兴奋地说，"亚历杭德罗，你能为我们创建假记者证件吗？"
+                        
+                        "已经在进行了，" 他回答，"但你们需要看起来像真正的记者，包括设备和行为。"
+                        
+                        迭戈笑了："我的医学背景让我成为一个不错的演员。至于设备，我们可以在路上解决。"`,
+                        choices: [
+                            {
+                                text: "准备记者伪装",
+                                nextScene: 13
+                            }
+                        ]
+                    },
+                    {
+                        text: `"计划如下，" 你详细说明，"亚历杭德罗将黑入白宫通讯系统，为我创建一个临时记者身份。今晚有关于'猎人协议'的媒体简报会，这是我进入的掩护。"
+                        
+                        "一旦进入，亚历杭德罗将触发通讯故障，作为技术支持的塞巴斯蒂安和迭戈将被召唤修复。在混乱中，我将尝试接近战情室或总统。"
+                        
+                        "为了增加可信度，我们需要罗伯托发送的所有证据——关于霍金斯、'边境安全解决方案'和他们计划的详细信息。如果能直接向总统展示这些证据，他可能会相信我们。"
+                        
+                        "同时，我们需要找出霍金斯从褐石建筑拿走的东西是什么，以及'水晶宫坠落'计划的具体内容。"
+                        
+                        团队成员相互对视，都明白这个计划充满风险，但也是阻止政变的唯一希望。`,
+                        choices: [
+                            {
+                                text: "执行白宫渗透计划",
+                                nextScene: 16
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🏛️ 华盛顿特区 - 白宫外围</div>
+                        
+                        傍晚时分，你换上精心准备的记者装扮，带着亚历杭德罗伪造的完美证件，来到白宫西门。心跳加速，但你保持冷静的外表。
+                        
+                        安检比预期的还要严格，但你的伪装和证件通过了审查。与此同时，迭戈和塞巴斯蒂安以技术支持人员的身份在另一个入口等待亚历杭德罗的信号。
+                        
+                        进入白宫后，你被引导至新闻简报室，那里已有约二十名记者等待。房间里的气氛紧张，显然最近的事件让所有人都感到不安。
+                        
+                        通过耳机，亚历杭德罗低声说："系统显示会议将在30分钟后开始。战情室会议定在7点，也就是简报会结束后。我已经准备好在需要时触发通讯故障。"`,
+                        choices: [
+                            {
+                                text: "等待并观察",
+                                nextScene: 17
+                            },
+                            {
+                                text: "寻找接近战情室的路径",
+                                nextScene: 18
+                            }
+                        ]
+                    },
+                    {
+                        text: `你决定等待并仔细观察周围环境和人员。在新闻简报室，你注意到安保人员比平常多，而且他们的警觉性明显更高。
+                        
+                        几个你不认识的特勤局特工在角落低声交谈，频繁查看手表，这引起了你的怀疑。
+                        
+                        通过耳机，亚历杭德罗报告："刚截获一条加密通讯。'水晶清洗'行动确认在7:15启动，也就是战情室会议开始15分钟后。"
+                        
+                        就在这时，新闻秘书走进房间，宣布简报会将延迟15分钟。这个微小的变化让你警觉起来——他们可能在调整时间表以配合行动。`,
+                        choices: [
+                            {
+                                text: "向亚历杭德罗发出信号",
+                                nextScene: 19
+                            }
+                        ]
+                    },
+                    {
+                        text: `你借口寻找洗手间，离开新闻简报室，开始探索通往战情室的可能路径。
+                        
+                        白宫内部走廊错综复杂，但根据之前研究的平面图，你大致知道战情室的位置。然而，通往那里的所有走廊都有特勤局特工把守。
+                        
+                        在一个转角处，你看到两名不明身份的人员正在安装某种设备于通风口附近。他们的动作专业而隐蔽，明显不是常规维护人员。
+                        
+                        "亚历杭德罗，" 你低声对着隐藏的麦克风，"有人在通风系统上安装不明设备。可能是某种气体装置或爆炸物。"
+                        
+                        "这符合'水晶清洗'的模式，" 亚历杭德罗紧张地回答，"他们可能计划使用气体使战情室内的人员失能或...更糟。"`,
+                        choices: [
+                            {
+                                text: "向亚历杭德罗发出信号",
+                                nextScene: 19
+                            }
+                        ]
+                    },
+                    {
+                        text: `你立即向亚历杭德罗发出执行信号："现在就触发通讯故障。情况比我们想象的更紧急。"
+                        
+                        几秒钟后，白宫内的所有电视屏幕、通讯设备和电脑系统同时出现故障。警报声响起，工作人员开始慌乱地跑动。
+                        
+                        在混乱中，你看到几名特勤局特工迅速离开岗位，前往某个方向——可能是应对紧急情况。
+                        
+                        同时，迭戈和塞巴斯蒂安被召唤进入白宫，作为紧急技术支持。通过耳机，塞巴斯蒂安确认："我们已进入。正按计划前往通信中心。"
+                        
+                        你利用混乱，悄悄跟随那些离开岗位的特工，希望他们能带你靠近战情室或椭圆办公室。`,
+                        choices: [
+                            {
+                                text: "跟踪特工",
+                                nextScene: 20
+                            }
+                        ]
+                    },
+                    {
+                        text: `你小心地跟随特工们穿过几个走廊和安全门。他们的行动迅速而有目的性，显然是赶往某个重要地点。
+                        
+                        转过一个拐角后，你看到了一个标志——指向战情室和椭圆办公室的方向指示。特工们在一个安全检查点停下，出示证件后通过。
+                        
+                        "不行，我无法直接跟进去，" 你对着隐藏麦克风低声说，"需要另一个分散注意力的事件。"
+                        
+                        亚历杭德罗很快回应："正在触发火警系统。三、二、一..."
+                        
+                        刺耳的火警声响彻整个区域，喷淋系统启动，水花四溅。安检点的特工们不得不离开岗位，协助疏散周围区域。
+                        
+                        在混乱中，你迅速穿过无人看守的检查点，朝战情室方向前进。`,
+                        choices: [
+                            {
+                                text: "继续前往战情室",
+                                nextScene: 21
+                            }
+                        ]
+                    },
+                    {
+                        text: `你顺利到达战情室外围区域，发现情况比预期的更加紧张。几名武装人员——明显不是常规特勤局特工——正守在入口处。通过他们的耳机，你听到片段对话："...准备在7:15执行...确保所有目标都在室内..."
+                        
+                        通过隐藏通讯器，你向队友报告："我确认'水晶清洗'是针对战情室会议的行动。他们计划在7:15对战情室内的所有人采取行动，可能是使用气体或其他手段控制或清除与会者。"
+                        
+                        就在这时，你看到一个熟悉的身影走向战情室——霍金斯，手里拿着那个金属箱子。他对守卫点头示意，轻松通过安检。
+                        
+                        "霍金斯已经到位，" 你紧张地报告，"他带着那个箱子，里面可能是行动的关键设备或武器。"`,
+                        choices: [
+                            {
+                                text: "联系塞巴斯蒂安和迭戈",
+                                nextScene: 22
+                            },
+                            {
+                                text: "尝试独自阻止霍金斯",
+                                nextScene: 23
+                            }
+                        ]
+                    },
+                    {
+                        text: `你迅速联系塞巴斯蒂安和迭戈："霍金斯已经进入战情室，行动即将开始。你们的位置？"
+                        
+                        "我们在通信中心，" 塞巴斯蒂安回答，"已经控制了系统。我们可以监控整个白宫的摄像头，也可以控制门禁和通讯。"
+                        
+                        "太好了，" 你松了口气，"我需要你们做两件事：第一，锁定战情室的门，阻止更多人进入；第二，尝试通过内部通讯系统向总统发出警告。"
+                        
+                        "收到，" 迭戈回答，"但战情室有独立的安全系统，我们只能部分控制。而且，我们发现一件令人担忧的事情——白宫通风系统已经被篡改，有人安装了某种气体释放装置，定时在7:15启动。"
+                        
+                        "那就是他们的计划，" 你恍然大悟，"使用气体控制战情室内的所有人，然后霍金斯接管指挥权。我们必须阻止气体释放！"`,
+                        choices: [
+                            {
+                                text: "寻找通风系统控制点",
+                                nextScene: 24
+                            }
+                        ]
+                    },
+                    {
+                        text: `看到霍金斯即将进入战情室，你作出了一个大胆的决定——独自阻止他。
+                        
+                        利用火警系统造成的混乱，你快速接近霍金斯，假装被疏散的工作人员不小心撞到他。在短暂的接触中，你成功将迭戈准备的微型追踪器贴在他的西装上。
+                        
+                        "抱歉，先生，" 你装作慌乱地道歉，同时仔细观察那个金属箱子。
+                        
+                        霍金斯冷漠地看了你一眼："小心点，记者。这里不是你该来的地方。"
+                        
+                        他快步走向战情室，但这短暂的接触让你确认了两件事：箱子上有生物识别锁，而且霍金斯佩戴着某种呼吸保护装置，隐藏在他的领带下方。`,
+                        choices: [
+                            {
+                                text: "联系塞巴斯蒂安和迭戈",
+                                nextScene: 22
+                            }
+                        ]
+                    },
+                    {
+                        text: `根据迭戈的指示，你迅速寻找通风系统的主控制点。应该在战情室附近的维护区域。
+                        
+                        借助亚历杭德罗黑入的白宫平面图，你找到了正确的位置——一个标有"HVAC控制"的小型技术室。
+                        
+                        房间门锁着，但塞巴斯蒂安远程控制门禁系统，成功为你打开了它。
+                        
+                        里面，你看到一个复杂的控制面板，以及一个明显是后加装的装置——连接着计时器，显示还有8分钟启动。
+                        
+                        "我找到气体释放装置了，" 你报告，"但这不是我的专业领域。如何停止它？"
+                        
+                        "描述一下你看到的，" 迭戈通过通讯器指导你，"有没有连接线缆？计时器类型？"`,
+                        choices: [
+                            {
+                                text: "按迭戈指示操作",
+                                nextScene: 25
+                            },
+                            {
+                                text: "物理破坏装置",
+                                nextScene: 26
+                            }
+                        ]
+                    },
+                    {
+                        text: `你详细描述了装置的情况，按照迭戈的指示小心操作。
+                        
+                        "红色和蓝色线缆连接着计时器，" 你说，"还有一个黑色盒子连接到通风管道。"
+                        
+                        "听我说，" 迭戈冷静地指导，"首先，不要切断红色线缆，那可能会触发紧急释放机制。找到控制面板上的系统开关，将通风系统转为手动模式。"
+                        
+                        你照做了，听到系统发出低沉的嗡鸣声，指示灯从自动转为手动。
+                        
+                        "很好，" 迭戈继续，"现在，找到连接黑色盒子和计时器的蓝色线缆。小心地将它断开，然后关闭通风系统主电源。"
+                        
+                        你的手微微颤抖，但成功执行了指示。计时器停止了，装置似乎被停用。
+                        
+                        "干得好！" 迭戈松了口气，"气体释放装置已被停用。但这只解决了一部分问题。霍金斯和他的人仍在战情室，可能有备用计划。"`,
+                        choices: [
+                            {
+                                text: "前往战情室",
+                                nextScene: 27
+                            }
+                        ]
+                    },
+                    {
+                        text: `时间紧迫，你决定直接物理破坏装置。
+                        
+                        "迭戈，没时间精细操作了，" 你快速说道，"我要直接破坏它。"
+                        
+                        "等等！" 迭戈急切地警告，"那可能会——"
+                        
+                        但你已经行动了，用随手可得的灭火器猛击装置。设备发出刺耳的警报声，但确实停止了运作。
+                        
+                        然而，你很快意识到这个举动触发了某种备用机制。一个小型显示屏闪烁着警告："检测到篡改。启动安全协议。"
+                        
+                        "该死，" 你咒骂道，"我触发了某种安全警报。"
+                        
+                        "战情室的安保级别刚刚提高了，" 塞巴斯蒂安通过通讯器报告，"所有门都被锁定，进入和退出都被限制。不过，好消息是气体释放系统确实被停用了。"`,
+                        choices: [
+                            {
+                                text: "寻找进入战情室的方法",
+                                nextScene: 28
+                            }
+                        ]
+                    },
+                    {
+                        text: `停用气体装置后，你迅速前往战情室方向。走廊上，安保人员正在紧张地奔跑和沟通，显然他们的计划被打乱了。
+                        
+                        "塞巴斯蒂安，战情室内情况如何？" 你通过通讯器询问。
+                        
+                        "通过监控可以看到，总统和其他高级官员已经到达，" 塞巴斯蒂安回答，"霍金斯也在那里，但他看起来很焦虑，频繁查看时间。"
+                        
+                        "他知道气体系统失效了，" 你分析道，"但他可能有备用计划。我必须进入战情室警告总统。"
+                        
+                        "正门被严格把守，" 塞巴斯蒂安说，"但有一个服务入口，用于紧急情况。我可以暂时解锁那道门，但你只有几秒钟的窗口期。"
+                        
+                        "做吧，" 你坚定地说，"我会准备好。"`,
+                        choices: [
+                            {
+                                text: "等待塞巴斯蒂安解锁门",
+                                nextScene: 29
+                            }
+                        ]
+                    },
+                    {
+                        text: `虽然气体系统被破坏触发了警报，但这也为你创造了一个机会。整个区域的安保都处于高度警戒状态，但他们的注意力全部集中在寻找入侵者上。
+                        
+                        "我需要进入战情室，" 你对塞巴斯蒂安说，"有什么建议？"
+                        
+                        "监控显示霍金斯似乎在说服与会者继续会议，尽管有安全警报，" 塞巴斯蒂安报告，"他可能不想失去这个机会。我有个想法——我们可以触发战情室内的紧急通讯系统，直接向总统传递警告。"
+                        
+                        "做吧，" 你同意道，"同时，给我指引最近的路径。我们还可以利用警报作为掩护，声称要疏散战情室内的人员。"
+                        
+                        "好主意，" 塞巴斯蒂安同意，"我在附近的装备柜找到了一些特勤局制服。迭戈正在把它送到你的位置。"`,
+                        choices: [
+                            {
+                                text: "等待特勤局制服",
+                                nextScene: 30
+                            }
+                        ]
+                    },
+                    {
+                        text: `你来到塞巴斯蒂安指示的服务入口前，耐心等待信号。
+                        
+                        "准备好，" 通讯器里传来塞巴斯蒂安的声音，"三、二、一...现在！"
+                        
+                        门锁发出轻微的咔嗒声，你迅速拉开门，闪身进入。这是一个狭窄的服务通道，直接通向战情室后部。
+                        
+                        通过玻璃门，你可以看到战情室内的情况——总统坐在中央位置，周围是内阁成员和顾问。霍金斯站在一侧，手中的金属箱子已经打开，正在准备某种设备。
+                        
+                        就在这时，战情室内的紧急通讯系统突然启动，警告声响起："注意！所有人员！这是安全警告！霍金斯先生涉及'猎人组织'政变计划！疏散总统！重复，立即疏散总统！"
+                        
+                        房间内一片混乱，所有人都惊讶地看向霍金斯。他的表情从震惊迅速转为愤怒，突然从箱子中拿出一把武器！`,
+                        choices: [
+                            {
+                                text: "闯入战情室",
+                                nextScene: 31
+                            }
+                        ]
+                    },
+                    {
+                        text: `几分钟后，<span class="character diego">迭戈</span>带着一套特勤局制服快速来到你的位置。
+                        
+                        "穿上这个，" 他气喘吁吁地说，"塞巴斯蒂安已经把你的身份输入了临时安保系统。你将以应急响应小组成员的身份进入战情室，疏散总统。"
+                        
+                        你迅速换上制服，调整好耳机和对讲机，看起来像一名真正的特勤局特工。
+                        
+                        "战情室内情况如何？" 你问。
+                        
+                        "霍金斯正在争取时间，" 迭戈回答，"他告诉总统警报只是系统故障。但我们的紧急通讯已经引起了怀疑。有几名特工开始警惕地盯着霍金斯。"
+                        
+                        "好的，" 你做好心理准备，"是时候结束这一切了。"`,
+                        choices: [
+                            {
+                                text: "前往战情室",
+                                nextScene: 32
+                            }
+                        ]
+                    },
+                    {
+                        text: `看到霍金斯拔出武器，你没有犹豫，立即冲进战情室。
+                        
+                        "总统先生，趴下！" 你大喊，同时扑向霍金斯。
+                        
+                        房间内的特勤局特工立即行动，保护总统和其他官员。一片混乱中，霍金斯朝你开火，子弹擦过你的肩膀。
+                        
+                        痛苦袭来，但你没有停止，撞向霍金斯，将他扑倒在地。你们激烈地争夺武器，他的力量出人意料地强大。
+                        
+                        "你毁了一切！" 霍金斯咆哮道，"你不明白这些都是为了什么！"
+                        
+                        "我完全明白，" 你冷静回答，"这是为了权力。为了控制。"
+                        
+                        就在霍金斯即将占上风时，两名真正的特勤局特工加入战斗，成功控制了霍金斯。金属箱子在搏斗中被踢开，里面的设备散落一地——一个复杂的遥控装置和几个小型金属容器。`,
+                        choices: [
+                            {
+                                text: "向总统解释情况",
+                                nextScene: 33
+                            }
+                        ]
+                    },
+                    {
+                        text: `身着特勤局制服，你自信地走向战情室主入口。守卫们检查了你的证件（由塞巴斯蒂安巧妙伪造），然后让你通过。
+                        
+                        "总统安保响应小组，" 你简短地说，"接到紧急安全警报，需要进行安全评估。"
+                        
+                        一进入战情室，你立即扫视全场。霍金斯站在角落，手放在那个金属箱子上，看起来既紧张又愤怒。总统和其他官员正在讨论，明显对突然的安全警报感到困惑。
+                        
+                        你直接走向总统："先生，出于安全考虑，我们需要立即将您转移到安全地点。我们有可靠情报表明存在直接威胁。"
+                        
+                        就在此时，霍金斯突然大喊："别听她的！她是恐怖分子玛利亚·布兰卡！她就是盐湖城爆炸的策划者！"
+                        
+                        所有人的目光瞬间转向你，包括真正的特勤局特工，他们的手已经放在武器上。`,
+                        choices: [
+                            {
+                                text: "揭露霍金斯的计划",
+                                nextScene: 34
+                            }
+                        ]
+                    },
+                    {
+                        text: `战情室内的混乱终于平息，霍金斯被特勤局特工控制住。总统看起来震惊但安全，其他官员也没有受伤。
+                        
+                        你站在总统面前，尽管肩膀受伤，但挺直腰板："总统先生，我是玛利亚·布兰卡。我知道这听起来难以置信，但刚才您亲眼目睹的只是一个更大阴谋的一小部分。"
+                        
+                        你简明扼要地解释了"猎人组织"的存在，他们如何利用恐怖袭击制造恐慌，计划通过"猎人协议"获取前所未有的权力，以及霍金斯和其他高级官员的参与。
+                        
+                        "这听起来像科幻小说，" 总统严肃地说，"但考虑到刚才发生的事情，我愿意听取更多证据。"
+                        
+                        "我可以提供所有证据，" 你回答，"包括布兰卡夫人的供词、魔镜系统的数据，以及我们从军事基地收集的文件。霍金斯只是这个组织的一员，还有更多人参与其中。"`,
+                        choices: [
+                            {
+                                text: "继续下一章",
+                                nextChapter: 8,
+                                nextScene: 0
+                            }
+                        ]
+                    },
+                    {
+                        text: `面对霍金斯的指控和特工们的警惕，你保持镇定，声音响亮而清晰：
+                        
+                        "总统先生，我确实是玛利亚·布兰卡，但盐湖城的爆炸是霍金斯和'猎人组织'策划的，目的是制造恐慌，推动他们的政变计划。"
+                        
+                        你迅速指向霍金斯的箱子："那个箱子里有他们的设备。原计划是通过通风系统释放气体，使这个房间里的所有人失能，然后霍金斯接管指挥权。通风系统已经被我们的人停用，所以他正准备使用备用计划。"
+                        
+                        "荒谬！" 霍金斯怒吼，同时猛然打开箱子，但出乎他意料的是，里面的设备已经被某种方式干扰——显示屏上闪烁着错误信息。
+                        
+                        "这不可能！" 他惊骇地喊道，随后像是意识到自己露出了马脚，迅速转为愤怒，伸手去拿一个小装置。
+                        
+                        总统的首席特工立即采取行动，制服了霍金斯。在混乱中，一份文件从箱子里掉出——上面清晰地标着"猎人组织行动计划"和多名政府高官的签名。`,
+                        choices: [
+                            {
+                                text: "继续下一章",
+                                nextChapter: 8,
+                                nextScene: 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: "第八章：水晶棺材",
+                scenes: [
+                    {
+                        text: `<div class="location">🏛️ 华盛顿特区 - 白宫</div>
+                        
+                        霍金斯被捕三天后，你站在椭圆办公室内，面对着总统和一个特别调查小组。你的肩膀伤口已经得到处理，但仍然隐隐作痛，提醒着你战斗的代价。
+                        
+                        "玛利亚·布兰卡女士，" 总统严肃地说，"首先，我要代表国家感谢你阻止了一场可怕的政变尝试。调查小组已经确认了你提供的大部分证据，证实'猎人组织'确实存在，并计划接管政府关键部门。"
+                        
+                        特别调查小组的负责人补充道："目前已有十二名高级官员被捕，包括两名内阁成员、三名参议员和多名军方将领。但我们相信可能还有其他成员，特别是在私营部门和国际层面。"`,
+                        choices: [
+                            {
+                                text: "询问布兰卡夫人的情况",
+                                nextScene: 1
+                            },
+                            {
+                                text: "询问'猎人协议'的状态",
+                                nextScene: 2
+                            }
+                        ]
+                    },
+                    {
+                        text: `"布兰卡夫人的情况如何？" 你问道，"她被抓到了吗？"
+                        
+                        总统和调查小组交换了一个复杂的眼神。
+                        
+                        "卡门·布兰卡在墨西哥边境被捕，" 调查负责人回答，"她试图逃往南美。目前正在特殊设施内接受审讯。她已经提供了一些有价值的信息，证实了霍金斯作为'猎人组织'领导者之一的身份，以及整个政变计划的细节。"
+                        
+                        "她还活着，" 你轻声说，某种感情在你心中波动——不是仇恨，也不是原谅，而是一种复杂的解脱感。复仇的循环终于可以结束了。
+                        
+                        "她将面临多项重罪指控，" 总统补充，"包括恐怖主义、谋杀、叛国和毒品贩运。考虑到证据的强度，她很可能度过余生在监狱中。"`,
+                        choices: [
+                            {
+                                text: "询问盐湖城伤亡情况",
+                                nextScene: 3
+                            }
+                        ]
+                    },
+                    {
+                        text: `"'猎人协议'现在是什么状态？" 你问道，"它是否已完全终止？"
+                        
+                        "是的，" 总统坚定地回答，"我已经签署行政命令，立即终止'猎人协议'及其所有相关措施。同时，我指示司法部门彻查该协议是如何在没有适当监督的情况下获得批准的。"
+                        
+                        调查负责人补充："我们发现'猎人协议'的批准过程涉及大量伪造文件和误导信息。事实上，大多数投票支持它的官员并不知道协议的真正内容和目的。"
+                        
+                        "北美自由贸易协定的修正案呢？" 你继续问道，"它是更大计划的一部分。"
+                        
+                        "修正案已被搁置，" 总统回答，"我们正在重新审视所有与边境安全相关的政策，确保它们真正服务于公共利益，而不是某些特殊利益集团。"`,
+                        choices: [
+                            {
+                                text: "询问盐湖城伤亡情况",
+                                nextScene: 3
+                            }
+                        ]
+                    },
+                    {
+                        text: `你的表情变得沉重："盐湖城的伤亡情况如何？"
+                        
+                        总统的面色同样凝重："最终确认的死亡人数是315人，受伤超过2000人。如果不是你和你的同伴提前疏散了大部分区域，伤亡会更加惨重。"
+                        
+                        "我们已经启动了一项特别援助计划，" 他继续道，"为受害者家庭提供支持，并重建受损的社区。同时，一个独立委员会正在调查整个事件，确保类似的悲剧不会再次发生。"
+                        
+                        你点点头，思绪飘向那些无辜的受害者。这不是你想要的结果，但至少真相已经大白，责任人将被绳之以法。
+                        
+                        "那些牺牲的人不会被忘记，" 总统郑重承诺，"我们将确保这场悲剧不仅成为一个教训，也成为推动积极变革的催化剂。"`,
+                        choices: [
+                            {
+                                text: "询问七兄弟的情况",
+                                nextScene: 4
+                            }
+                        ]
+                    },
+                    {
+                        text: `"我的同伴们，七个兄弟，他们怎么样了？" 你关切地问道。
+                        
+                        "他们都安全，" 调查负责人回答，"马努埃尔·奥尔蒂斯的伤势正在恢复。考虑到他们在揭露'猎人组织'和阻止更大灾难方面的贡献，政府决定不追究他们在行动中可能违反的法律。事实上，总统正考虑对他们予以某种形式的表彰。"
+                        
+                        你感到一阵宽慰，七兄弟不仅幸存，还将获得应有的认可。他们的母亲终于得到了某种形式的正义。
+                        
+                        "至于你，布兰卡女士，" 总统直接看向你，"你的情况更为复杂。一方面，你在阻止政变方面功不可没；另一方面，你确实参与了布兰卡家族的非法活动，尽管是作为卧底。"`,
+                        choices: [
+                            {
+                                text: "接受任何法律后果",
+                                nextScene: 5
+                            },
+                            {
+                                text: "要求特赦",
+                                nextScene: 6
+                            }
+                        ]
+                    },
+                    {
+                        text: `"总统先生，" 你平静地说，"我完全理解我的行为可能带来的法律后果，并准备接受任何公正的判决。我不寻求特殊待遇或豁免。"
+                        
+                        总统似乎对你的态度印象深刻："你的诚实和责任感值得赞赏，布兰卡女士。考虑到所有情况，我已经指示司法部门谨慎评估你的案例，将你作为揭露者和关键证人的角色纳入考量。"
+                        
+                        调查负责人补充："在正式决定之前，你将被置于保护性监管之下——不是监狱，而是一个安全设施，既是为了你的保护，也是为了确保你能继续协助调查。"
+                        
+                        你点头表示理解。这是公平的处理方式，既考虑了你的贡献，也不忽视你曾经的参与。`,
+                        choices: [
+                            {
+                                text: "询问下一步计划",
+                                nextScene: 7
+                            }
+                        ]
+                    },
+                    {
+                        text: `"考虑到我的贡献和我所冒的风险，" 你直视总统的眼睛，"我请求获得特赦。我参与布兰卡家族活动的唯一目的是从内部揭露它，为母亲和其他受害者讨回公道。"
+                        
+                        总统沉思片刻："你的请求有一定道理，布兰卡女士。确实，如果没有你的牺牲和勇气，这个阴谋可能永远不会被揭露。"
+                        
+                        "然而，" 他继续道，"我必须平衡公正与宽恕、法律与人道考量。我不能现在做出承诺，但我会认真考虑在适当时机给予你某种形式的赦免。"
+                        
+                        调查负责人补充："同时，你将被置于保护性监管之下，并继续协助我们的调查。你提供的信息对于追查'猎人组织'的其余成员至关重要。"`,
+                        choices: [
+                            {
+                                text: "询问下一步计划",
+                                nextScene: 7
+                            }
+                        ]
+                    },
+                    {
+                        text: `"接下来会发生什么？" 你问道，"还有更多的'猎人组织'成员在逃，还有更多的真相需要揭露。"
+                        
+                        "我们已经成立了一个特别工作组，" 总统解释，"由多个联邦机构的可靠人员组成，专门负责追踪'猎人组织'的剩余成员和相关资产。你和你的同伴提供的情报是这个工作的基础。"
+                        
+                        "关于公众知情权，" 调查负责人补充，"总统已经决定对整个事件保持前所未有的透明度。虽然某些细节由于国家安全考虑需要保密，但大部分真相将向公众公开。"
+                        
+                        "这包括布兰卡家族与政府机构的不正当关系、'猎人协议'的真实性质，以及盐湖城爆炸的实际策划者。"`,
+                        choices: [
+                            {
+                                text: "思考个人未来",
+                                nextScene: 8
+                            }
+                        ]
+                    },
+                    {
+                        text: `随着会议接近尾声，你开始思考自己的未来。几十年的仇恨和复仇计划已经达到了结局，虽然不是完美的结局，但真相最终浮出水面。
+                        
+                        "总统先生，" 你最后问道，"在所有这一切结束后，我的未来会怎样？"
+                        
+                        总统给了你一个理解的眼神："那将部分取决于你，布兰卡女士。你拥有非凡的技能和经验，如果用于正当目的，可以成为巨大的资产。一旦法律程序完成，也许我们可以讨论你在国家安全领域的潜在角色。"
+                        
+                        "或者，" 他继续道，"如果你希望开始全新的生活，政府将提供必要的支持，包括身份保护和重新安置。这是我们能为你这样的关键证人做的最基本的事情。"`,
+                        choices: [
+                            {
+                                text: "表达对安宁生活的渴望",
+                                nextScene: 9
+                            },
+                            {
+                                text: "提出继续打击犯罪的意愿",
+                                nextScene: 10
+                            }
+                        ]
+                    },
+                    {
+                        text: `"说实话，总统先生，" 你轻声说，"我渴望的只是一种安宁。我的一生都在仇恨和复仇的阴影下度过，从五岁目睹母亲被杀开始。我已经厌倦了暴力和欺骗。"
+                        
+                        总统点点头，表示理解："这是完全可以理解的，布兰卡女士。每个人都有寻求平静生活的权利，特别是经历了如此多的创伤之后。"
+                        
+                        "一旦程序完成，" 他承诺，"我们将确保你有机会开始新生活。新的身份，新的地点，足够的资源让你不必担忧。这是国家能够为你提供的最小回报。"
+                        
+                        你感到一种久违的轻松感——终于可以放下重担，不再是玛利亚·布兰卡，不再是白雪公主，只是...你自己。`,
+                        choices: [
+                            {
+                                text: "准备见证最后的正义",
+                                nextScene: 11
+                            }
+                        ]
+                    },
+                    {
+                        text: `"总统先生，" 你坚定地说，"我已经看到了太多的黑暗——毒品、腐败、权力滥用。我了解这些网络如何运作，知道如何从内部瓦解它们。如果政府愿意，我希望继续为打击类似的犯罪组织贡献我的经验和能力。"
+                        
+                        总统显得有些惊讶，但也似乎在考虑这个可能性："这是一个慷慨的提议，布兰卡女士。你的知识和技能确实是无价的资产。"
+                        
+                        "我会与司法部和国土安全部讨论适当的安排，" 他谨慎地说，"可能是顾问角色，或者某种特别任务小组的成员。当然，这要在所有法律程序完成后。"
+                        
+                        你明白这条路不会容易，但至少你的技能和经历能够用于正义的目的，而不再是复仇的工具。`,
+                        choices: [
+                            {
+                                text: "准备见证最后的正义",
+                                nextScene: 11
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">📺 一个月后 - 联邦法院</div>
+                        
+                        一个月后，你站在联邦法院的旁听席上，看着卡门·布兰卡夫人和兰德尔·霍金斯被带入法庭。他们将面临包括叛国、恐怖主义、谋杀和共谋在内的多项重罪指控。
+                        
+                        法庭充满了媒体记者和公众，所有人都渴望亲眼目睹这场被称为"世纪审判"的开始。
+                        
+                        布兰卡夫人看起来苍老许多，失去了往日的威严和自信。当她的目光与你相遇时，你看到的不是愤怒或仇恨，而是某种近乎认命的平静。
+                        
+                        "所有起立，" 法警宣布，"联邦最高法院现在开庭。"
+                        
+                        当法官宣读长长的指控清单时，你感到一种奇怪的情感混合体——不是胜利的喜悦，而是一种沉重的解脱。这不是结束，而是某种新开始的可能性。`,
+                        choices: [
+                            {
+                                text: "与七兄弟告别",
+                                nextScene: 12
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="location">🌵 亚利桑那州尤马沙漠</div>
+                        
+                        审判开始后的一周，你和七兄弟在尤马沙漠的一处偏远地点聚集。你们站在一座简陋的坟墓前，坟墓上刻着一个简单的名字和日期——你的亲生母亲的名字，和她被杀害的日期。
+                        
+                        "这就是一切开始的地方，" 你轻声说，"也是一切结束的地方。"
+                        
+                        七兄弟沉默不语，每个人都在思考自己的母亲，以及她们为揭露真相而付出的生命代价。
+                        
+                        <span class="character roberto">罗伯托</span>最终打破了沉默："'猎人组织'还在那里，隐藏在阴影中。我们的战斗还没有结束。"
+                        
+                        你点点头，将一朵野花放在母亲的坟前："我知道。但至少我们已经动摇了他们的根基，削弱了他们的力量。布兰卡夫人的帝国已经崩塌，魔镜系统已经被摧毁。这是一个开始。"`,
+                        choices: [
+                            {
+                                text: "互相告别",
+                                nextScene: 13
+                            }
+                        ]
+                    },
+                    {
+                        text: `时间到了对七兄弟说再见的时刻。根据政府的安排，你们每个人都将前往不同的地方，开始新的生活，至少在审判完成前是这样。
+                        
+                        <span class="character julio">胡里奥</span>举起他的猎刀，刀刃在沙漠的阳光下闪闪发光："为了我们的母亲，为了所有无辜的受害者，我们会继续战斗。"
+                        
+                        七兄弟一起举起各自的武器，庄严宣誓。你也抬起手，掌心中躺着那把银质匕首，刀柄上刻着一个简单的单词："仁慈"。
+                        
+                        "为了正义，" 你轻声说，"无论道路多么漫长。"
+                        
+                        <span class="character diego">迭戈</span>给了你一个医疗包："保持联系。如果你需要任何帮助，只需启动紧急频道。"
+                        
+                        <span class="character alejandro">亚历杭德罗</span>递给你一个加密通讯器："这个无法被追踪。只有我们知道频率。"
+                        
+                        一一拥抱告别后，你看着七兄弟各自离去，消失在沙漠的不同方向。`,
+                        choices: [
+                            {
+                                text: "开始新的旅程",
+                                nextScene: 14
+                            }
+                        ]
+                    },
+                    {
+                        text: `当你准备离开时，远处的地平线上，一架直升机的轮廓开始浮现。政府派来接你的交通工具，将带你前往新的安全地点。
+                        
+                        你最后看了一眼母亲的坟墓，心中默念着一个承诺："我完成了你开始的工作，母亲。真相已经大白，正义正在实现。现在，是时候开始我自己的生活了。"
+                        
+                        走向直升机时，你感到多年来第一次真正的自由。不再是布兰卡家族的傀儡，不再是复仇的工具，不再是"白雪公主"——只是你自己，带着所有的伤痕和希望。
+                        
+                        直升机缓缓升空，沙漠在下方展开，广阔而平静。在某个未知的地方，一个新的身份，一个新的生活正等待着你。
+                        
+                        但你知道，无论走到哪里，过去的经历将永远是你的一部分。它们塑造了你，强化了你，最终也解放了你。
+                        
+                        在魔镜破碎的世界里，你终于找到了自己的真实倒影。`,
+                        choices: [
+                            {
+                                text: "完成故事",
+                                nextScene: 15
+                            }
+                        ]
+                    },
+                    {
+                        text: `<div class="scene-transition">【致命白雪】故事完结</div>
+                        
+                        你已经完成了《致命白雪》的故事。这是一个关于复仇、真相和救赎的旅程，从鲜血与仇恨开始，最终通向某种形式的正义与和平。
+                        
+                        白雪公主的旅程并非完美，充满了艰难的选择和沉重的代价。但在这个过程中，她不仅为母亲复仇，也揭露了一个威胁整个国家的巨大阴谋，拯救了无数潜在的受害者。
+                        
+                        尽管故事结束了，但我们可以想象白雪公主在未来的道路上，无论是寻求平静的新生活，还是继续为正义而战，她都将带着过去的教训和经验，面对新的挑战。
+                        
+                        因为在魔镜破碎的世界里，真相是最锋利的武器，而她，已经成为真相的化身。`,
+                        choices: [
+                            {
+                                text: "重新开始故事",
+                                restart: true
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+        
+        // 初始化游戏
+        function initGame() {
+            updateChapterDisplay();
+            loadScene();
+            createSnowflakes();
+            if (gameState.timerActive) {
+                document.getElementById('timer-container').style.display = 'block';
+                startTimer();
+            }
+        }
+        
+        // 更新章节显示
+        function updateChapterDisplay() {
+            document.getElementById('chapter-display').textContent = chapters[gameState.currentChapter].title;
+        }
+        
+        // 加载场景
+        function loadScene() {
+            const currentChapter = chapters[gameState.currentChapter];
+            const currentScene = currentChapter.scenes[gameState.currentScene];
             
-            const result = results.find(r => 
-                totalScore >= r.minScore && totalScore <= r.maxScore
-            );
+            document.getElementById('story-text').innerHTML = currentScene.text;
             
-            document.querySelector('.result-text').textContent = result.text;
+            // 清除旧的选择按钮
+            const choicesContainer = document.getElementById('choices-container');
+            choicesContainer.innerHTML = '';
+            
+            // 添加新的选择按钮
+            currentScene.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.classList.add('choice-btn');
+                button.textContent = choice.text;
+                
+                button.addEventListener('click', () => {
+                    if (choice.action) {
+                        choice.action();
+                    }
+                    
+                    if (choice.restart) {
+                        resetGame();
+                        return;
+                    }
+                    
+                    if (choice.nextChapter !== undefined) {
+                        gameState.currentChapter = choice.nextChapter;
+                        gameState.currentScene = choice.nextScene;
+                        updateChapterDisplay();
+                    } else {
+                        gameState.currentScene = choice.nextScene;
+                    }
+                    
+                    loadScene();
+                    
+                    // 平滑滚动到顶部
+                    document.getElementById('story-container').scrollTop = 0;
+                });
+                
+                choicesContainer.appendChild(button);
+            });
         }
-
-        function updateProgress() {
-            const progress = ((currentQuestion + 1) / questions.length) * 100;
-            document.querySelector('.progress').style.width = `${progress}%`;
+        
+        // 添加到物品栏
+        function addToInventory(item) {
+            if (!gameState.inventory.includes(item)) {
+                gameState.inventory.push(item);
+                updateInventoryDisplay();
+            }
         }
-
-        function restartTest() {
-            currentQuestion = 0;
-            totalScore = 0;
-            document.querySelector('.result-screen').classList.add('hidden');
-            document.querySelector('.welcome-screen').classList.remove('hidden');
+        
+        // 更新物品栏显示
+        function updateInventoryDisplay() {
+            const inventory = document.getElementById('inventory');
+            inventory.innerHTML = '';
+            
+            if (gameState.inventory.length === 0) {
+                inventory.innerHTML = '<div class="item">空</div>';
+            } else {
+                gameState.inventory.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.classList.add('item');
+                    itemElement.textContent = item;
+                    inventory.appendChild(itemElement);
+                });
+            }
         }
+        
+        // 切换物品栏显示/隐藏
+        function toggleInventory() {
+            const inventory = document.getElementById('inventory');
+            if (inventory.style.display === 'block') {
+                inventory.style.display = 'none';
+            } else {
+                inventory.style.display = 'block';
+            }
+        }
+        
+        // 开始倒计时
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+            
+            const timerInterval = setInterval(() => {
+                if (!gameState.timerActive) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+                
+                gameState.timerSeconds--;
+                
+                if (gameState.timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.textContent = "00:00:00";
+                    // 可以添加时间耗尽的处理
+                    return;
+                }
+                
+                const hours = Math.floor(gameState.timerSeconds / 3600);
+                const minutes = Math.floor((gameState.timerSeconds % 3600) / 60);
+                const seconds = gameState.timerSeconds % 60;
+                
+                timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+        
+        // 创建雪花效果
+        function createSnowflakes() {
+            const snowContainer = document.getElementById('snow-container');
+            const snowflakes = ['❄', '❅', '❆', '✻', '✺', '❉'];
+            
+            for (let i = 0; i < 30; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+                snowflake.innerHTML = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                snowflake.style.left = `${Math.random() * 100}%`;
+                snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+                snowflake.style.fontSize = `${Math.random() * 1.5 + 0.5}em`;
+                
+                // 随机化动画持续时间和延迟
+                const animationDuration = Math.random() * 15 + 10;
+                const animationDelay = Math.random() * 10;
+                snowflake.style.animation = `fall ${animationDuration}s linear infinite`;
+                snowflake.style.animationDelay = `${animationDelay}s`;
+                
+                snowContainer.appendChild(snowflake);
+            }
+        }
+        
+        // 重置游戏
+        function resetGame() {
+            gameState = {
+                currentChapter: 0,
+                currentScene: 0,
+                inventory: [],
+                timerActive: false,
+                timerSeconds: 72 * 60 * 60,
+                decisions: {
+                    trustSeven: false,
+                    confrontedBlanca: false,
+                    foundEvidence: false,
+                    bombsDisarmed: 0,
+                    brothersAlive: 7
+                },
+                flags: {}
+            };
+            
+            document.getElementById('timer-container').style.display = 'none';
+            document.getElementById('inventory').innerHTML = '';
+            document.getElementById('inventory').style.display = 'none';
+            
+            initGame();
+        }
+        
+        // 初始化游戏
+        document.addEventListener('DOMContentLoaded', initGame);
     </script>
 </body>
 </html>
