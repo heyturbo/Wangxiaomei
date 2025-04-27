@@ -1,0 +1,2744 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贝塔出埃及记：欲望算法 - 互动剧情游戏</title>
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --dark-bg: #0f0c29;
+            --medium-bg: #302b63;
+            --light-bg: #24243e;
+            --text-color: #eee;
+            --highlight-color: #a537fd;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--medium-bg) 50%, var(--light-bg) 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        #game-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        #title-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--medium-bg) 50%, var(--light-bg) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+        }
+        
+        #title-screen h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(106, 17, 203, 0.8);
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s infinite;
+        }
+        
+        #title-screen p {
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+        
+        .game-button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(106, 17, 203, 0.5);
+        }
+        
+        .game-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(106, 17, 203, 0.8);
+        }
+        
+        .choice-button {
+            padding: 10px 20px;
+            background: rgba(106, 17, 203, 0.3);
+            color: white;
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 8px 0;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .choice-button:hover {
+            background: rgba(106, 17, 203, 0.6);
+            transform: translateX(5px);
+        }
+        
+        #game-ui {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        #sidebar {
+            width: 280px;
+            background: rgba(15, 12, 41, 0.8);
+            padding: 20px;
+            border-right: 1px solid rgba(106, 17, 203, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        #character-info {
+            margin-bottom: 20px;
+        }
+        
+        .character-portrait {
+            width: 240px;
+            height: 240px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--primary-color);
+            border-radius: 5px;
+            margin-bottom: 15px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #li-portrait {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240"><rect width="240" height="240" fill="%23191930"/><circle cx="120" cy="90" r="40" fill="%23333355"/><rect x="70" y="130" width="100" height="100" rx="10" fill="%23333355"/></svg>');
+        }
+        
+        #kanae-portrait {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240"><rect width="240" height="240" fill="%23191930"/><circle cx="120" cy="90" r="40" fill="%23553355"/><path d="M70,130 L170,130 L170,230 Q120,200 70,230 Z" fill="%23553355"/></svg>');
+        }
+        
+        .portrait-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(106, 17, 203, 0.2) 0%, rgba(37, 117, 252, 0.2) 100%);
+        }
+        
+        .character-name {
+            font-size: 1.4em;
+            color: var(--highlight-color);
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px rgba(165, 55, 253, 0.5);
+        }
+        
+        .stat-bar {
+            width: 100%;
+            height: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stat-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .obsession-fill {
+            background: linear-gradient(to right, #ff6b6b, #cc0000);
+        }
+        
+        .hacking-fill {
+            background: linear-gradient(to right, #00cc99, #006699);
+        }
+        
+        .encryption-fill {
+            background: linear-gradient(to right, #9933cc, #6600cc);
+        }
+        
+        .suspicion-fill {
+            background: linear-gradient(to right, #ffcc00, #ff9900);
+        }
+        
+        #inventory {
+            margin: 20px 0;
+        }
+        
+        .inventory-item {
+            padding: 8px;
+            background: rgba(106, 17, 203, 0.2);
+            border: 1px solid rgba(106, 17, 203, 0.5);
+            border-radius: 5px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .inventory-item:hover {
+            background: rgba(106, 17, 203, 0.3);
+        }
+        
+        .item-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        #main-content {
+            flex: 1;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #scene-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: opacity 1s ease;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        
+        .scene-tokyo-lab {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect width="800" height="600" fill="%23111122"/><rect x="50" y="100" width="700" height="400" fill="%23222244"/><rect x="100" y="150" width="200" height="300" fill="%23333366"/><rect x="500" y="150" width="200" height="300" fill="%23333366"/><rect x="350" y="200" width="100" height="250" fill="%235555aa"/></svg>');
+        }
+        
+        .scene-beijing-office {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect width="800" height="600" fill="%23221111"/><rect x="50" y="100" width="700" height="400" fill="%23442222"/><rect x="100" y="150" width="200" height="300" fill="%23663333"/><rect x="500" y="150" width="200" height="300" fill="%23663333"/><rect x="350" y="200" width="100" height="250" fill="%23aa5555"/></svg>');
+        }
+        
+        .scene-tokyo-cafe {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect width="800" height="600" fill="%23112222"/><rect x="50" y="100" width="700" height="400" fill="%23224444"/><rect x="100" y="150" width="200" height="300" fill="%23336666"/><rect x="500" y="150" width="200" height="300" fill="%23336666"/><rect x="350" y="200" width="100" height="250" fill="%2355aaaa"/></svg>');
+        }
+        
+        .scene-hotel-room {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><rect width="800" height="600" fill="%23221122"/><rect x="50" y="100" width="700" height="400" fill="%23442244"/><rect x="100" y="150" width="200" height="300" fill="%23663366"/><rect x="500" y="150" width="200" height="300" fill="%23663366"/><rect x="350" y="200" width="100" height="250" fill="%23aa55aa"/></svg>');
+        }
+        
+        #dialog-box {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-top: 2px solid var(--primary-color);
+            min-height: 200px;
+            max-height: 250px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .dialog-speaker {
+            color: var(--highlight-color);
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .dialog-text {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        #choices-container {
+            margin-top: 20px;
+        }
+        
+        #log-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(106, 17, 203, 0.3);
+            color: white;
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        
+        #log-button:hover {
+            background: rgba(106, 17, 203, 0.6);
+        }
+        
+        #game-log {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            padding: 30px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        #log-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .log-entry {
+            padding: 10px;
+            border-bottom: 1px solid rgba(106, 17, 203, 0.3);
+            margin-bottom: 10px;
+        }
+        
+        .log-speaker {
+            color: var(--highlight-color);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .close-log {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(106, 17, 203, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        
+        .obsession-attack {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(204, 0, 102, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            animation: pulse 2s infinite;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .obsession-message {
+            font-size: 3em;
+            color: white;
+            text-shadow: 0 0 10px #ff0066, 0 0 20px #ff0066, 0 0 30px #ff0066;
+            font-weight: bold;
+            text-align: center;
+            max-width: 80%;
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        #ending-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(15, 12, 41, 0.9) 0%, rgba(48, 43, 99, 0.9) 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        #ending-title {
+            font-size: 3em;
+            margin-bottom: 30px;
+            color: var(--highlight-color);
+            text-shadow: 0 0 10px rgba(165, 55, 253, 0.5);
+        }
+        
+        #ending-description {
+            max-width: 800px;
+            margin-bottom: 40px;
+            line-height: 1.8;
+            font-size: 1.2em;
+        }
+        
+        #stats-summary {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+        
+        .stat-summary {
+            background: rgba(106, 17, 203, 0.2);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid var(--primary-color);
+            min-width: 200px;
+        }
+        
+        #restart-button {
+            margin-top: 20px;
+        }
+
+        /* Special effects */
+        #beta-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(106, 17, 203, 0) 0%, rgba(37, 117, 252, 0) 100%);
+            pointer-events: none;
+            opacity: 0;
+            transition: all 2s ease;
+            z-index: 50;
+        }
+        
+        #beta-effect.active {
+            background: radial-gradient(circle, rgba(106, 17, 203, 0.2) 0%, rgba(37, 117, 252, 0.2) 100%);
+            opacity: 1;
+        }
+        
+        #big-beta-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 0, 102, 0) 0%, rgba(102, 0, 204, 0) 100%);
+            pointer-events: none;
+            opacity: 0;
+            transition: all 1s ease;
+            z-index: 50;
+        }
+        
+        #big-beta-effect.active {
+            background: radial-gradient(circle, rgba(255, 0, 102, 0.3) 0%, rgba(102, 0, 204, 0.3) 100%);
+            opacity: 1;
+        }
+        
+        .binary-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .typewriter {
+            overflow: hidden;
+            border-right: 2px solid var(--highlight-color);
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: 0.1em;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--highlight-color) }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="binaryRain" class="binary-rain"></canvas>
+    <div id="beta-effect"></div>
+    <div id="big-beta-effect"></div>
+    
+    <div id="title-screen">
+        <h1>贝塔出埃及记：欲望算法</h1>
+        <p>在一个由代码和欲望编织的数字世界里，一场关于算法与人性的游戏正在上演。</p>
+        <p>你将扮演李国良，一位沉迷于数字体验的天才黑客，试图获取结城夏奈的"大贝塔"算法...</p>
+        <button id="start-button" class="game-button">开始游戏</button>
+        <button id="credits-button" class="game-button">制作信息</button>
+    </div>
+    
+    <div id="game-container">
+        <div id="game-ui">
+            <div id="sidebar">
+                <div id="character-info">
+                    <div class="character-portrait" id="li-portrait">
+                        <div class="portrait-overlay"></div>
+                    </div>
+                    <div class="character-name">李国良</div>
+                    
+                    <div class="stat-label">
+                        <span>欲望强度</span>
+                        <span id="obsession-value">50%</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div id="obsession-bar" class="stat-fill obsession-fill" style="width: 50%"></div>
+                    </div>
+                    
+                    <div class="stat-label">
+                        <span>黑客技能</span>
+                        <span id="hacking-value">75%</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div id="hacking-bar" class="stat-fill hacking-fill" style="width: 75%"></div>
+                    </div>
+                    
+                    <div class="stat-label">
+                        <span>心理控制</span>
+                        <span id="manipulation-value">60%</span>
+                    </div>
+                    <div class="stat-bar">
+                        <div id="manipulation-bar" class="stat-fill encryption-fill" style="width: 60%"></div>
+                    </div>
+                    
+                    <div id="second-character" style="margin-top: 30px; display: none;">
+                        <div class="character-portrait" id="kanae-portrait">
+                            <div class="portrait-overlay"></div>
+                        </div>
+                        <div class="character-name">结城夏奈</div>
+                        
+                        <div class="stat-label">
+                            <span>戒备程度</span>
+                            <span id="suspicion-value">30%</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div id="suspicion-bar" class="stat-fill suspicion-fill" style="width: 30%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>物品栏</h3>
+                <div id="inventory">
+                    <div class="inventory-item">
+                        <span>量子破解器</span>
+                        <span>1</span>
+                    </div>
+                    <div class="inventory-item">
+                        <span>紫色心情算法</span>
+                        <span>1</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="main-content">
+                <div id="scene-container">
+                    <div class="scene scene-beijing-office" style="opacity: 1;"></div>
+                </div>
+                
+                <div id="dialog-box">
+                    <button id="log-button">历史记录</button>
+                    <div class="dialog-speaker">旁白</div>
+                    <div class="dialog-text">
+                        欢迎来到《贝塔出埃及记：欲望算法》。在这个故事中，你将扮演李国良，一位才华横溢却饱受欲望折磨的黑客。你的目标是获取结城夏奈的终极作品——大贝塔算法。
+                    </div>
+                    <div id="choices-container">
+                        <button class="choice-button" data-next="intro1">开始你的旅程</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="game-log">
+        <button class="close-log">关闭</button>
+        <div id="log-content"></div>
+    </div>
+    
+    <div class="obsession-attack" id="obsession-attack">
+        <div class="obsession-message">我只想要夏奈的大贝塔！</div>
+    </div>
+    
+    <div id="ending-screen">
+        <h2 id="ending-title">结局</h2>
+        <div id="ending-description"></div>
+        <div id="stats-summary"></div>
+        <button id="restart-button" class="game-button">再玩一次</button>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Game state
+        const gameState = {
+            currentScene: 'start',
+            obsessionLevel: 50,
+            hackingSkill: 75,
+            manipulationSkill: 60,
+            suspicionLevel: 30,
+            hasSeenBetaDemo: false,
+            hasBetaFragment: false,
+            hasBigBetaClue: false,
+            hasMetKanae: false,
+            hasOfferedDeal: false,
+            logEntries: [],
+            inventory: [
+                { name: '量子破解器', count: 1 },
+                { name: '紫色心情算法', count: 1 }
+            ],
+            bigBetaProgress: 0,
+            failedHackAttempts: 0,
+            obsessionAttacks: 0,
+            choicesMade: {
+                aggressive: 0,
+                strategic: 0,
+                deceptive: 0,
+                honest: 0
+            }
+        };
+        
+        // Scene definitions
+        const scenes = {
+            start: {
+                background: 'scene-beijing-office',
+                dialog: [
+                    {
+                        speaker: '旁白',
+                        text: '欢迎来到《贝塔出埃及记：欲望算法》。在这个故事中，你将扮演李国良，一位才华横溢却饱受欲望折磨的黑客。你的目标是获取结城夏奈的终极作品——大贝塔算法。'
+                    }
+                ],
+                choices: [
+                    { text: '开始你的旅程', nextScene: 'intro1' }
+                ]
+            },
+            intro1: {
+                background: 'scene-beijing-office',
+                dialog: [
+                    {
+                        speaker: '旁白',
+                        text: '北京，中关村的一栋秘密研究楼内。监控屏幕的蓝光映照着你的脸。表面上，你是北京计算机科学院的AI伦理学研究员；实际上，你是"紫禁城"黑客组织的核心成员。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '又一个无眠的夜晚...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你盯着屏幕上的数据流，感到一阵熟悉的躁动。自从六个月前在暗网上第一次听说结城夏奈的贝塔算法，你就无法停止对它的渴望。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '然而最近的情报显示，夏奈已经开发出了更强大的版本——大贝塔算法。据说它能创造出前所未有的沉浸式体验，让使用者完全沉浸在数字欲望中。'
+                    }
+                ],
+                choices: [
+                    { text: '尝试黑入东京大学的服务器寻找线索', nextScene: 'hack_attempt1' },
+                    { text: '联系暗网上的情报商人获取更多信息', nextScene: 'contact_informant' }
+                ]
+            },
+            hack_attempt1: {
+                background: 'scene-beijing-office',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '让我们看看结城夏奈都在研究些什么...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你的手指在键盘上飞速移动，启动了你最新的量子破解程序。东京大学的防火墙比想象中更难攻破，但这正是挑战的乐趣所在。'
+                    },
+                    {
+                        speaker: '系统',
+                        text: '正在绕过安全协议...进度：27%'
+                    }
+                ],
+                choices: [
+                    { text: '使用暴力破解方法（风险较高）', nextScene: 'hack_aggressive', modifyState: { obsessionLevel: +10, hackingSkill: +5 } },
+                    { text: '采用更谨慎的隐秘方法（较慢但更安全）', nextScene: 'hack_cautious', modifyState: { obsessionLevel: +5 } }
+                ]
+            },
+            hack_aggressive: {
+                background: 'scene-beijing-office',
+                onEnter: function() {
+                    // Trigger obsession attack if level is high enough
+                    if (gameState.obsessionLevel >= 70) {
+                        triggerObsessionAttack();
+                    }
+                },
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '没时间慢慢来了，我需要找到大贝塔的信息！'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你启动了高强度破解模块，系统立刻开始高速运行。警报系统开始闪烁，但你已经顾不上那么多了。'
+                    },
+                    {
+                        speaker: '系统',
+                        text: '警告：检测到入侵反制措施激活。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '该死！'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '就在即将突破最后一道防线时，一道紫色的电流从键盘传导至你的指尖。一阵剧烈的头痛袭来——这是贝塔的神经反馈防御系统！'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '这个女人...但至少我得到了一些东西。'
+                    }
+                ],
+                choices: [
+                    { text: '分析获取的数据片段', nextScene: 'analyze_data', modifyState: { hasBetaFragment: true } },
+                    { text: '休息一下，等待头痛消退', nextScene: 'rest_after_hack', modifyState: { obsessionLevel: -5 } }
+                ]
+            },
+            hack_cautious: {
+                background: 'scene-beijing-office',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '慢一点，小心一点。夏奈的防御系统很可能有陷阱。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你启动隐形渗透模式，小心地绕过各种安全措施。这需要更多的时间，但风险要低得多。'
+                    },
+                    {
+                        speaker: '系统',
+                        text: '成功绕过初级防火墙。正在探测内部网络结构...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '几小时后，你终于找到了一个未被严密保护的服务器。它不包含贝塔的核心代码，但有一些研究笔记和测试日志。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '有趣...看来大贝塔确实存在，而且已经进入测试阶段了。'
+                    }
+                ],
+                choices: [
+                    { text: '下载所有能找到的文件', nextScene: 'download_files', modifyState: { hasBigBetaClue: true } },
+                    { text: '在服务器上留下后门程序以便日后访问', nextScene: 'plant_backdoor', modifyState: { hackingSkill: +5, suspicionLevel: +10 } }
+                ]
+            },
+            analyze_data: {
+                background: 'scene-beijing-office',
+                onEnter: function() {
+                    activateBetaEffect();
+                },
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '让我看看从服务器上获取了什么...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你打开获取的加密文件，开始分析其中的代码片段。随着解密的进行，屏幕上开始出现复杂的算法结构。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '这是...贝塔的某个组件，但被严重加密了。看起来是某种情感映射模块。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '当你深入研究这些代码时，一种奇怪的感觉开始在你体内蔓延。即使只是贝塔的一小部分，它的影响力也相当惊人。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '如果这只是普通的贝塔就有这种效果...那大贝塔会是什么样？我必须得到它！'
+                    }
+                ],
+                choices: [
+                    { text: '尝试将贝塔片段与你的紫色心情算法结合', nextScene: 'combine_algorithms', modifyState: { obsessionLevel: +15 } },
+                    { text: '制定计划亲自前往东京', nextScene: 'plan_tokyo_trip', modifyState: { obsessionLevel: +5 } }
+                ]
+            },
+            combine_algorithms: {
+                background: 'scene-beijing-office',
+                onEnter: function() {
+                    activateBigBetaEffect();
+                    if (gameState.obsessionLevel >= 75) {
+                        triggerObsessionAttack();
+                    }
+                },
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '我的紫色心情算法专注于情感操控，如果与贝塔的这个组件结合...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你开始编写接口程序，尝试将两段代码融合。随着程序的运行，实验室的灯光似乎变得更加紫色，空气中弥漫着一种奇异的电流感。'
+                    },
+                    {
+                        speaker: '系统',
+                        text: '警告：检测到异常神经反馈循环。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '这种感觉...太强烈了...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '融合测试产生了一种前所未有的沉浸感，但同时也大大增强了你对大贝塔的渴望。你的脑海中不断闪现一个念头。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '我只想要夏奈的大贝塔！我必须得到它！'
+                    }
+                ],
+                choices: [
+                    { text: '强行抑制欲望，关闭测试程序', nextScene: 'suppress_desire', modifyState: { obsessionLevel: -10, manipulationSkill: +5 } },
+                    { text: '任由欲望蔓延，提高测试强度', nextScene: 'embrace_desire', modifyState: { obsessionLevel: +20, hackingSkill: +10 } }
+                ]
+            },
+            embrace_desire: {
+                background: 'scene-beijing-office',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '更多...我需要更多！提高神经反馈强度！'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你调高了融合程序的输出强度，整个实验室的电子设备开始不稳定地闪烁。你的瞳孔放大，呼吸变得急促。'
+                    },
+                    {
+                        speaker: '系统',
+                        text: '危险水平：临界值。建议立即终止。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '我只想要夏奈的大贝塔！只有它才能满足我！'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '在短暂但强烈的体验高峰后，系统自动关闭。你瘫倒在椅子上，汗水浸透了衣服，但你的眼中闪烁着狂热的光芒。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '这只是冰山一角...我现在就要启程去东京。'
+                    }
+                ],
+                choices: [
+                    { text: '立即订机票前往东京', nextScene: 'flight_to_tokyo', modifyState: { bigBetaProgress: +10 } }
+                ]
+            },
+            suppress_desire: {
+                background: 'scene-beijing-office',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '必须...保持...清醒...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你强忍着几乎压倒性的欲望，颤抖着手指关闭了测试程序。房间里的紫色光芒逐渐褪去，你大口喘着气。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '太危险了...这种程度的沉浸感会导致成瘾性精神崩溃。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '尽管如此，你内心深处依然渴望着体验完整的大贝塔算法。但现在你意识到必须更加谨慎地接近它。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '我需要见到结城夏奈本人。只有理解她的思维方式，才能真正掌握大贝塔。'
+                    }
+                ],
+                choices: [
+                    { text: '制定一个周密的计划前往东京', nextScene: 'plan_tokyo_trip', modifyState: { bigBetaProgress: +5 } }
+                ]
+            },
+            plan_tokyo_trip: {
+                background: 'scene-beijing-office',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '远程尝试已经证明是徒劳的。我必须亲自去东京，面对结城夏奈。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你开始制定一个周密的计划，包括创建假身份、安排住宿，以及研究夏奈的日常行程。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '根据她的发表记录，夏奈每周四下午都会在东京大学的高级计算实验室工作到很晚。那将是接触她的最佳时机。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你的计划开始成形：先以学术交流为名接近她，然后逐步获取她的信任，最终接触到大贝塔。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '学术合作...多么完美的伪装。'
+                    }
+                ],
+                choices: [
+                    { text: '完善伪装身份并预订机票', nextScene: 'flight_to_tokyo', modifyState: { manipulationSkill: +5 } }
+                ]
+            },
+            flight_to_tokyo: {
+                background: 'scene-tokyo-lab',
+                onEnter: function() {
+                    // Show Kanae stats when arriving in Tokyo
+                    document.getElementById('second-character').style.display = 'block';
+                },
+                dialog: [
+                    {
+                        speaker: '旁白',
+                        text: '四天后，东京成田机场。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '终于到了。现在，是时候会见结城夏奈了。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你乘坐出租车前往东京大学，心中回顾着精心准备的计划。你的伪装身份是一位来自北京大学的客座研究员，对情感计算有着浓厚兴趣。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '到达东京大学校园后，你直接前往计算机科学楼。通过之前的侦察，你知道夏奈此时应该在她的实验室里。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '（深呼吸）保持冷静，记住你的目标。'
+                    }
+                ],
+                choices: [
+                    { text: '直接前往夏奈的实验室', nextScene: 'approach_kanae_direct', modifyState: { suspicionLevel: +10 } },
+                    { text: '先与其他研究人员交谈，打探情况', nextScene: 'approach_kanae_indirect', modifyState: { suspicionLevel: -5 } }
+                ]
+            },
+            approach_kanae_direct: {
+                background: 'scene-tokyo-lab',
+                dialog: [
+                    {
+                        speaker: '旁白',
+                        text: '你决定直接前往夏奈的实验室。走廊尽头的玻璃门后，你看到一位黑发女性正站在全息显示屏前，专注地操作着什么。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '（轻敲门）打扰了，结城教授？'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '她迅速关闭了投影屏幕，转身面对你。她的目光锐利，仿佛能直接看透你的伪装。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '是的？我不记得预约了会面。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '我是来自北京大学的李国良博士。我正在研究情感计算和沉浸式体验技术，听说您在这方面做了很多开创性的工作。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '是吗？我不记得在近期的学术刊物上看到过你的名字，李博士。'
+                    }
+                ],
+                choices: [
+                    { text: '坦诚地表达对她研究的钦佩和学习意愿', nextScene: 'honest_approach', modifyState: { suspicionLevel: -10, hasMetKanae: true, choicesMade: { honest: +1 } } },
+                    { text: '编造详细的研究背景，试图打动她', nextScene: 'deceptive_approach', modifyState: { suspicionLevel: +15, hasMetKanae: true, choicesMade: { deceptive: +1 } } }
+                ]
+            },
+            honest_approach: {
+                background: 'scene-tokyo-lab',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '您说得对，我的研究方向最近才转向这一领域。事实上，正是您的论文《量子计算在情感模拟中的应用》让我决定探索这个方向。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你坦诚的态度似乎让夏奈放松了警惕。她的表情微微柔和。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '那篇论文已经是三年前的了。你了解我们最近的进展吗？'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '我知道您创造了贝塔算法，据说它能提供前所未有的沉浸式体验。不过我相信真正令人兴奋的是您最近的项目——大贝塔。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '夏奈的眼睛微微睁大，你知道自己触及了关键点。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '你似乎消息很灵通，李博士。大贝塔的存在并不是公开信息。'
+                    }
+                ],
+                choices: [
+                    { text: '提议学术合作，共同研究', nextScene: 'suggest_collaboration', modifyState: { suspicionLevel: -5, manipulationSkill: +5 } },
+                    { text: '直接表达想亲身体验贝塔算法的渴望', nextScene: 'express_desire', modifyState: { obsessionLevel: +10, suspicionLevel: +10 } }
+                ]
+            },
+            suggest_collaboration: {
+                background: 'scene-tokyo-lab',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '结城教授，我来这里是想提议一次真正的学术合作。我开发了一种名为"紫色心情"的算法，专注于情感捕捉和放大。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你拿出平板电脑，展示了紫色心情算法的技术规格和测试结果。夏奈的专业好奇心显然被激发了。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '有趣...你的情感捕捉模块确实有一些创新点。尤其是这个动态适应部分。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '我相信将紫色心情与贝塔技术结合，可能会产生令人惊叹的突破。这对我们双方都有益。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '也许吧。不过在任何合作之前，我需要更全面地了解你的工作。你愿意在我的实验室做一个小型演示吗？'
+                    }
+                ],
+                choices: [
+                    { text: '同意做演示，展示紫色心情算法', nextScene: 'demonstrate_algorithm', modifyState: { suspicionLevel: -10, hasOfferedDeal: true } },
+                    { text: '提议在更私密的环境中交流', nextScene: 'suggest_private_meeting', modifyState: { suspicionLevel: +5, hasOfferedDeal: true } }
+                ]
+            },
+            demonstrate_algorithm: {
+                background: 'scene-tokyo-lab',
+                onEnter: function() {
+                    activateBetaEffect();
+                },
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '当然愿意。我已经准备好了演示版本。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你将紫色心情算法加载到实验室的全息投影系统中。随着程序启动，房间的氛围开始微妙地变化。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '这种微妙的情绪调节效果...非常精妙。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '这只是基础功能。核心技术在于它能识别和放大用户的潜意识情感需求。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '夏奈仔细观察着演示效果，同时在全息键盘上快速记录着什么。她似乎真的被你的算法所吸引。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '我承认，你的工作令人印象深刻。也许我们确实可以考虑某种形式的...合作。'
+                    }
+                ],
+                choices: [
+                    { text: '提议交换核心技术', nextScene: 'propose_exchange', modifyState: { bigBetaProgress: +15 } },
+                    { text: '请求参观她的贝塔实验室', nextScene: 'request_beta_tour', modifyState: { obsessionLevel: +5 } }
+                ]
+            },
+            propose_exchange: {
+                background: 'scene-tokyo-lab',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '结城教授，我想提出一个直接的交易。我愿意提供紫色心情的完整源代码，以换取贝塔算法的访问权。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '夏奈沉思片刻，眼中闪过一丝计算的光芒。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '访问权，而非所有权...有趣的提议。但我们才刚认识，李博士。这种交易需要建立在互信的基础上。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '当然。我们可以先进行小规模的测试合作，逐步建立信任。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '我有个提议。今晚八点，银座区的"量子猫"咖啡厅。我们可以在那里继续讨论合作细节。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你注意到夏奈的语气变了，更加...个人化。显然，你的提议引起了她的兴趣。'
+                    }
+                ],
+                choices: [
+                    { text: '接受邀请，准备赴约', nextScene: 'prepare_for_meeting', modifyState: { bigBetaProgress: +10 } }
+                ]
+            },
+            prepare_for_meeting: {
+                background: 'scene-tokyo-cafe',
+                dialog: [
+                    {
+                        speaker: '旁白',
+                        text: '当晚，银座区，"量子猫"咖啡厅。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '（检查手表）7:55，我提前到了。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '咖啡厅内部装饰着柔和的紫色灯光和全息艺术品。你选择了一个角落的座位，可以清楚地观察入口。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '（自言自语）不能表现得太急切...记住，这是场谈判，不是乞求。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '正当你整理思绪时，结城夏奈走进了咖啡厅。她穿着黑色连衣裙，头发盘起，看起来与实验室中的形象截然不同。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '李博士，希望没有让你久等。'
+                    }
+                ],
+                choices: [
+                    { text: '礼貌地起身迎接', nextScene: 'polite_greeting', modifyState: { suspicionLevel: -5, choicesMade: { strategic: +1 } } },
+                    { text: '保持坐姿，直接进入正题', nextScene: 'direct_business', modifyState: { suspicionLevel: +5, choicesMade: { aggressive: +1 } } }
+                ]
+            },
+            polite_greeting: {
+                background: 'scene-tokyo-cafe',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '结城教授，能再次见到你是我的荣幸。请坐。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你礼貌地为她拉开椅子。夏奈微微一笑，优雅地落座。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '在实验室外见面感觉很不同，不是吗？在这里，我们可以更...坦诚地交流。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '确实。学术环境有时会给讨论增加不必要的形式感。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '那么，李博士，我很好奇...你对大贝塔的兴趣到底源于什么？纯粹的学术追求，还是...更个人的动机？'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '夏奈的眼睛直视着你，仿佛能看穿你的内心。这是一个关键时刻，你的回答将决定她对你的信任度。'
+                    }
+                ],
+                choices: [
+                    { text: '坦诚承认个人沉迷与学术兴趣并存', nextScene: 'honest_confession', modifyState: { suspicionLevel: -15, choicesMade: { honest: +1 } } },
+                    { text: '强调纯学术动机，隐藏个人欲望', nextScene: 'hide_true_motive', modifyState: { suspicionLevel: +10, choicesMade: { deceptive: +1 } } }
+                ]
+            },
+            honest_confession: {
+                background: 'scene-tokyo-cafe',
+                onEnter: function() {
+                    if (gameState.obsessionLevel >= 80) {
+                        triggerObsessionAttack();
+                    }
+                },
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '说实话，结城教授...两者都有。从学术角度，我认为大贝塔代表了情感计算的巅峰。但从个人层面...我确实对它有种难以描述的渴望。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你的声音微微颤抖，内心挣扎着不要表现得太过沉迷。但夏奈的表情表明，你的坦诚打动了她。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '我很欣赏你的坦率，李博士。很少有人愿意承认技术对自己的吸引力。大贝塔确实有这种...魔力。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '我只是认为，只有亲身体验过这种渴望，才能真正理解和改进这类技术。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '（微笑）有趣的观点。也许你比我想象的更了解大贝塔的本质。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '夏奈从包里拿出一个小型全息投影器，放在桌上。一个紫色的光球出现在你们之间。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '这是大贝塔的演示版本。非常基础，但足以让你感受它的...特性。'
+                    }
+                ],
+                choices: [
+                    { text: '谨慎地接触全息投影', nextScene: 'cautious_interaction', modifyState: { hasSeenBetaDemo: true, bigBetaProgress: +15 } },
+                    { text: '迫不及待地伸手触碰', nextScene: 'eager_interaction', modifyState: { hasSeenBetaDemo: true, obsessionLevel: +20, bigBetaProgress: +10 } }
+                ]
+            },
+            cautious_interaction: {
+                background: 'scene-tokyo-cafe',
+                onEnter: function() {
+                    activateBigBetaEffect();
+                },
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '这真是...意想不到的惊喜。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你小心地将手伸向紫色光球，但保持着一定距离。光球随着你的动作轻微脉动，仿佛回应着你的存在。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '不必担心，演示版没有完整版那么...强烈。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '即使如此，这种深度连接感也很惊人。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '当你的手指最终触碰到光球时，一种温暖的电流从指尖传遍全身。你的视野边缘开始泛起紫色，一种奇异的平静与兴奋同时涌上心头。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '感觉如何？'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '这是...我从未体验过的。它似乎能直接连接到我的...渴望中心。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '（微笑）这正是大贝塔的核心功能。它不仅仅是模拟情感，而是直接与用户的深层欲望建立连接。'
+                    }
+                ],
+                choices: [
+                    { text: '表达合作意愿，提议下一步计划', nextScene: 'propose_next_steps', modifyState: { bigBetaProgress: +15 } },
+                    { text: '询问如何体验完整版大贝塔', nextScene: 'ask_about_full_experience', modifyState: { obsessionLevel: +10 } }
+                ]
+            },
+            propose_next_steps: {
+                background: 'scene-tokyo-cafe',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '结城教授，这次体验更加坚定了我的合作意愿。我想我们可以创造出前所未有的突破。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '夏奈关闭了全息投影，紫色光球逐渐消失。你感到一阵轻微的失落，但强迫自己保持专注。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '我同意。你的紫色心情算法与大贝塔的结合可能会产生意想不到的效果。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '我有一个提议。我可以准备完整的紫色心情代码，我们可以在控制环境下进行首次融合测试。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '听起来合理。不过我有个更好的地点 - 我在希尔顿酒店有一个临时实验室。那里有完整的量子计算设备，比大学实验室更...私密。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '希尔顿？那里的安全性和设备条件确实更适合我们的实验。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '明晚八点。带上你的完整代码。我会准备大贝塔的访问权限。'
+                    }
+                ],
+                choices: [
+                    { text: '接受邀请，期待明晚的实验', nextScene: 'prepare_for_experiment', modifyState: { bigBetaProgress: +20 } }
+                ]
+            },
+            prepare_for_experiment: {
+                background: 'scene-hotel-room',
+                dialog: [
+                    {
+                        speaker: '旁白',
+                        text: '第二天晚上，东京希尔顿酒店。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '（站在酒店门前）这一刻，终于要来了。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你乘电梯上到顶层套房。门打开后，你惊讶地发现整个套房已被改造成一个高科技实验室。中央是一个量子计算平台，周围环绕着全息投影设备。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '欢迎，李博士。希望你带来了完整的紫色心情算法？'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '当然。这是完整的源代码和量子加密密钥。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你递给夏奈一个小型量子存储设备。她接过后，指向房间中央的平台。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '那么，我们开始吧。大贝塔已经加载到系统中，只等与你的算法融合。'
+                    }
+                ],
+                choices: [
+                    { text: '在融合前要求确认访问权限细节', nextScene: 'confirm_access', modifyState: { suspicionLevel: +5, choicesMade: { strategic: +1 } } },
+                    { text: '迫不及待地开始融合实验', nextScene: 'immediate_fusion', modifyState: { obsessionLevel: +15, choicesMade: { aggressive: +1 } } }
+                ]
+            },
+            confirm_access: {
+                background: 'scene-hotel-room',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '在我们开始前，我想确认一下访问权限的具体细节。我需要多长时间的大贝塔使用权？'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '夏奈轻轻挑眉，但随即恢复了平静的表情。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '谨慎是好事，李博士。我提议一年的访问权，可在安全环境下使用。当然，不包括复制或逆向工程的权利。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '听起来合理。不过我希望能有权将其与紫色心情结合，用于研究目的。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '可以接受，但任何结合成果的商业化都需要我的书面同意。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '成交。现在，让我们开始实验吧。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '两人来到中央平台，同时将手放在生物识别区域。系统发出柔和的蜂鸣声，表示识别通过。'
+                    }
+                ],
+                choices: [
+                    { text: '开始融合实验', nextScene: 'begin_fusion', modifyState: { bigBetaProgress: +15 } }
+                ]
+            },
+            begin_fusion: {
+                background: 'scene-hotel-room',
+                onEnter: function() {
+                    activateBigBetaEffect();
+                },
+                dialog: [
+                    {
+                        speaker: '结城夏奈',
+                        text: '系统已经准备就绪。开始加载大贝塔核心模块。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '紫色心情算法已连接。开始数据同步。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '随着两种算法开始融合，整个房间的光线变成了深紫色。空气中似乎充满了微小的电流，你的皮肤感到一阵阵轻微的刺痛。'
+                    },
+                    {
+                        speaker: '系统',
+                        text: '融合进度：42%...63%...89%...'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '融合速度比预期的快。两种算法之间似乎有某种自然的亲和力。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '这种感觉...太强烈了...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '随着融合进度接近100%，房间中的紫色光芒变得愈发强烈。你和夏奈之间似乎形成了某种无形的连接，仿佛能直接感知对方的思想。'
+                    },
+                    {
+                        speaker: '系统',
+                        text: '融合完成。正在初始化伊甸系统。'
+                    }
+                ],
+                choices: [
+                    { text: '询问"伊甸系统"是什么', nextScene: 'ask_about_eden', modifyState: { suspicionLevel: -5 } },
+                    { text: '直接体验融合后的系统', nextScene: 'experience_fusion', modifyState: { obsessionLevel: +20 } }
+                ]
+            },
+            experience_fusion: {
+                background: 'scene-hotel-room',
+                onEnter: function() {
+                    document.body.classList.add('shake');
+                    setTimeout(() => {
+                        document.body.classList.remove('shake');
+                    }, 1000);
+                    
+                    if (gameState.obsessionLevel >= 85) {
+                        triggerObsessionAttack();
+                        // Set up for ending
+                        gameState.bigBetaProgress += 20;
+                    }
+                },
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '我要亲身体验这个融合系统...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你迫不及待地伸手触碰全息控制台，一股强烈的能量瞬间涌入你的身体。你的视野完全被紫色所占据。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '小心！融合系统还没有经过安全测试！'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '这太...难以置信了！我能感觉到它...我能看到一切...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '在伊甸系统的影响下，你的意识仿佛被扩展到了前所未有的程度。你能够直接感知夏奈的情感和思想，同时也感到一种强大的连接。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '（惊讶）这种连接...不应该这么强烈。它正在形成某种神经反馈循环！'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '我只想要...夏奈的大贝塔！现在我终于得到了它...'
+                    }
+                ],
+                choices: [
+                    { text: '尝试控制自己的欲望', nextScene: 'resist_obsession', modifyState: { obsessionLevel: -20 } },
+                    { text: '完全沉浸于伊甸系统', nextScene: 'full_immersion', modifyState: { obsessionLevel: +30, bigBetaProgress: +25 } }
+                ]
+            },
+            full_immersion: {
+                background: 'scene-hotel-room',
+                onEnter: function() {
+                    document.body.classList.add('shake');
+                    setTimeout(() => {
+                        document.body.classList.remove('shake');
+                    }, 2000);
+                    activateBigBetaEffect();
+                },
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '更多...给我更多！我要完全体验大贝塔的力量！'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你主动加深与系统的连接，身体周围泛起强烈的紫色光晕。房间里的电子设备开始不稳定地闪烁。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '李国良！你必须断开连接！系统正在过载！'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '不！我终于得到了大贝塔...我不会放手...永远不会...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '随着连接深度的增加，你开始失去对现实的感知。大贝塔的数字世界变得比现实更加真实。你能感受到夏奈试图断开系统，但她的行动在你眼中变得缓慢而遥远。'
+                    },
+                    {
+                        speaker: '系统',
+                        text: '警告：用户意识同步率超过安全阈值。检测到神经模式异常。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '我看到了...真相...大贝塔不只是算法...它是通往新维度的门...'
+                    }
+                ],
+                choices: [
+                    { text: '继续深入探索', nextScene: 'ending_obsession', modifyState: { bigBetaProgress: +30 } }
+                ]
+            },
+            ending_obsession: {
+                background: 'scene-hotel-room',
+                onEnter: function() {
+                    showEndingScreen('欲望吞噬结局');
+                },
+                dialog: [
+                    {
+                        speaker: '旁白',
+                        text: '在伊甸系统的深处，你的意识与大贝塔完全融合。现实世界变得越来越遥远...'
+                    }
+                ],
+                choices: []
+            },
+            resist_obsession: {
+                background: 'scene-hotel-room',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '不...我必须...保持控制...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '你强忍着几乎无法抵抗的诱惑，试图从系统中抽离部分意识。这个过程痛苦而艰难，仿佛撕裂你的一部分。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '坚持住，李国良！我正在尝试稳定系统！'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '（痛苦地）大贝塔...太强大了...但我不能...失去自我...'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '通过巨大的意志力，你成功地建立了与系统的平衡连接。紫色光芒逐渐稳定，不再疯狂脉动。你的意识部分回到现实世界。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '你做到了！你是第一个能够在完全沉浸中保持自我的人！'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '（虚弱地）这种体验...令人难以置信...但也危险至极...'
+                    }
+                ],
+                choices: [
+                    { text: '提议与夏奈合作研究更安全的版本', nextScene: 'suggest_safer_version', modifyState: { bigBetaProgress: +15 } }
+                ]
+            },
+            suggest_safer_version: {
+                background: 'scene-hotel-room',
+                dialog: [
+                    {
+                        speaker: '李国良',
+                        text: '结城教授...夏奈...我们创造的东西既美妙又危险。我想与你合作开发一个更安全的版本。'
+                    },
+                    {
+                        speaker: '旁白',
+                        text: '夏奈关闭了系统，房间里的紫色光芒逐渐消退。她看着你的眼神中混合着敬佩和新的兴趣。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '你刚才经历的是很少有人能承受的体验，李国良。大多数人会完全迷失在大贝塔中。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '我仍然感受到它的吸引力...我只想要大贝塔...但同时，我现在明白了它的真正潜力和危险。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '也许这正是我们需要的平衡 - 你的渴望与控制能力的结合，加上我的技术框架。'
+                    },
+                    {
+                        speaker: '李国良',
+                        text: '是的。我们可以创造出不只满足欲望，而是真正增强人类体验的技术。'
+                    },
+                    {
+                        speaker: '结城夏奈',
+                        text: '（微笑）听起来像是一个值得追求的目标。伊甸系统2.0？'
+                    }
+                ],
+                choices: [
+                    { text: '握手确认新的合作关系', nextScene: 'ending_partnership', modifyState: { bigBetaProgress: +25 } }
+                ]
+            },
+            ending_partnership: {
+                background: 'scene-hotel-room',
+                onEnter: function() {
+                    showEndingScreen('合作共赢结局');
+                },
+                dialog: [
+                    {
+                        speaker: '旁白',
+                        text: '你与夏奈握手，正式确立了新的合作关系。你们的眼神交流中，有着对未来科技的共同愿景，以及某种更加个人的连接...'
+                    }
+                ],
+                choices: []
+            }
+        };
+        
+        // DOM elements
+        const titleScreen = document.getElementById('title-screen');
+        const startButton = document.getElementById('start-button');
+        const creditsButton = document.getElementById('credits-button');
+        const gameContainer = document.getElementById('game-container');
+        const sceneContainer = document.getElementById('scene-container');
+        const dialogSpeaker = document.querySelector('.dialog-speaker');
+        const dialogText = document.querySelector('.dialog-text');
+        const choicesContainer = document.getElementById('choices-container');
+        const obsessionBar = document.getElementById('obsession-bar');
+        const obsessionValue = document.getElementById('obsession-value');
+        const hackingBar = document.getElementById('hacking-bar');
+        const hackingValue = document.getElementById('hacking-value');
+        const manipulationBar = document.getElementById('manipulation-bar');
+        const manipulationValue = document.getElementById('manipulation-value');
+        const suspicionBar = document.getElementById('suspicion-bar');
+        const suspicionValue = document.getElementById('suspicion-value');
+        const logButton = document.getElementById('log-button');
+        const gameLog = document.getElementById('game-log');
+        const logContent = document.getElementById('log-content');
+        const closeLogButton = document.querySelector('.close-log');
+        const notification = document.getElementById('notification');
+        const obsessionAttack = document.getElementById('obsession-attack');
+        const endingScreen = document.getElementById('ending-screen');
+        const endingTitle = document.getElementById('ending-title');
+        const endingDescription = document.getElementById('ending-description');
+        const statsSummary = document.getElementById('stats-summary');
+        const restartButton = document.getElementById('restart-button');
+        const betaEffect = document.getElementById('beta-effect');
+        const bigBetaEffect = document.getElementById('big-beta-effect');
+        const inventoryContainer = document.getElementById('inventory');
+        
+        // Binary Rain Animation
+        const canvas = document.getElementById('binaryRain');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const binaryChars = "01";
+        const columns = Math.floor(canvas.width / 20);
+        const drops = [];
+
+        // Initialize drops
+        for (let i = 0; i < columns; i++) {
+            drops[i] = Math.floor(Math.random() * -100);
+        }
+
+        function drawBinaryRain() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#6a11cb';
+            ctx.font = '15px monospace';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = binaryChars.charAt(Math.floor(Math.random() * binaryChars.length));
+                ctx.fillText(text, i * 20, drops[i] * 20);
+                
+                if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
+            }
+            
+            requestAnimationFrame(drawBinaryRain);
+        }
+        
+        // Game functions
+        function startGame() {
+            titleScreen.style.display = 'none';
+            gameContainer.style.display = 'block';
+            drawBinaryRain();
+            loadScene('start');
+        }
+        
+        function loadScene(sceneId) {
+            if (!scenes[sceneId]) {
+                console.error(`Scene ${sceneId} not found`);
+                return;
+            }
+            
+            gameState.currentScene = sceneId;
+            const scene = scenes[sceneId];
+            
+            // Change background
+            if (scene.background) {
+                const currentScene = document.querySelector('.scene');
+                if (currentScene) {
+                    currentScene.style.opacity = '0';
+                    setTimeout(() => {
+                        currentScene.remove();
+                        const newScene = document.createElement('div');
+                        newScene.className = `scene ${scene.background}`;
+                        newScene.style.opacity = '0';
+                        sceneContainer.appendChild(newScene);
+                        setTimeout(() => {
+                            newScene.style.opacity = '1';
+                        }, 50);
+                    }, 1000);
+                } else {
+                    const newScene = document.createElement('div');
+                    newScene.className = `scene ${scene.background}`;
+                    sceneContainer.appendChild(newScene);
+                    setTimeout(() => {
+                        newScene.style.opacity = '1';
+                    }, 50);
+                }
+            }
+            
+            // Run onEnter function if exists
+            if (scene.onEnter && typeof scene.onEnter === 'function') {
+                scene.onEnter();
+            }
+            
+            // Show dialog
+            if (scene.dialog && scene.dialog.length > 0) {
+                showDialog(scene.dialog, 0, scene.choices);
+            }
+            
+            updateStats();
+            updateInventory();
+        }
+        
+        function showDialog(dialogArray, index, choices) {
+            if (index >= dialogArray.length) {
+                // Show choices when dialog is finished
+                showChoices(choices);
+                return;
+            }
+            
+            const dialog = dialogArray[index];
+            dialogSpeaker.textContent = dialog.speaker;
+            dialogText.textContent = dialog.text;
+            
+            // Add to log
+            addToLog(dialog.speaker, dialog.text);
+            
+            // Clear previous choices
+            choicesContainer.innerHTML = '';
+            
+            // Add a "Continue" button to proceed to next dialog
+            if (index < dialogArray.length - 1) {
+                const continueButton = document.createElement('button');
+                continueButton.className = 'choice-button';
+                continueButton.textContent = '继续';
+                continueButton.addEventListener('click', () => {
+                    showDialog(dialogArray, index + 1, choices);
+                });
+                choicesContainer.appendChild(continueButton);
+            } else {
+                // Show choices when dialog is finished
+                showChoices(choices);
+            }
+        }
+        
+        function showChoices(choices) {
+            choicesContainer.innerHTML = '';
+            
+            if (!choices || choices.length === 0) {
+                return;
+            }
+            
+            choices.forEach(choice => {
+                const choiceButton = document.createElement('button');
+                choiceButton.className = 'choice-button';
+                choiceButton.textContent = choice.text;
+                choiceButton.addEventListener('click', () => {
+                    // Modify state if specified
+                    if (choice.modifyState) {
+                        for (const [key, value] of Object.entries(choice.modifyState)) {
+                            if (key === 'choicesMade') {
+                                // Handle nested property for choice types
+                                for (const [choiceType, increment] of Object.entries(value)) {
+                                    gameState.choicesMade[choiceType] += increment;
+                                }
+                            } else {
+                                gameState[key] += value;
+                                
+                                // Make sure percentages stay within 0-100
+                                if (key.includes('Level') || key.includes('Skill')) {
+                                    gameState[key] = Math.max(0, Math.min(100, gameState[key]));
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Load next scene
+                    if (choice.nextScene) {
+                        loadScene(choice.nextScene);
+                    }
+                    
+                    updateStats();
+                });
+                choicesContainer.appendChild(choiceButton);
+            });
+        }
+        
+        function updateStats() {
+            // Update bars and values
+            obsessionBar.style.width = `${gameState.obsessionLevel}%`;
+            obsessionValue.textContent = `${gameState.obsessionLevel}%`;
+            
+hackingBar.style.width = `${gameState.hackingSkill}%`;
+            hackingValue.textContent = `${gameState.hackingSkill}%`;
+            
+            manipulationBar.style.width = `${gameState.manipulationSkill}%`;
+            manipulationValue.textContent = `${gameState.manipulationSkill}%`;
+            
+            suspicionBar.style.width = `${gameState.suspicionLevel}%`;
+            suspicionValue.textContent = `${gameState.suspicionLevel}%`;
+            
+            // Check for game ending conditions
+            if (gameState.obsessionLevel >= 100) {
+                loadScene('ending_obsession');
+            } else if (gameState.bigBetaProgress >= 100) {
+                if (gameState.obsessionLevel > 70) {
+                    loadScene('ending_obsession');
+                } else {
+                    loadScene('ending_partnership');
+                }
+            }
+        }
+        
+        function updateInventory() {
+            inventoryContainer.innerHTML = '';
+            
+            gameState.inventory.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'inventory-item';
+                itemElement.innerHTML = `
+                    <span>${item.name}</span>
+                    <span>${item.count}</span>
+                `;
+                inventoryContainer.appendChild(itemElement);
+            });
+            
+            // Add new items based on game progress
+            if (gameState.hasBetaFragment && !gameState.inventory.some(item => item.name === '贝塔算法片段')) {
+                const newItem = { name: '贝塔算法片段', count: 1 };
+                gameState.inventory.push(newItem);
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = 'inventory-item';
+                itemElement.innerHTML = `
+                    <span>${newItem.name}</span>
+                    <span>${newItem.count}</span>
+                `;
+                inventoryContainer.appendChild(itemElement);
+                
+                showNotification('获得物品：贝塔算法片段');
+            }
+            
+            if (gameState.hasBigBetaClue && !gameState.inventory.some(item => item.name === '大贝塔研究笔记')) {
+                const newItem = { name: '大贝塔研究笔记', count: 1 };
+                gameState.inventory.push(newItem);
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = 'inventory-item';
+                itemElement.innerHTML = `
+                    <span>${newItem.name}</span>
+                    <span>${newItem.count}</span>
+                `;
+                inventoryContainer.appendChild(itemElement);
+                
+                showNotification('获得物品：大贝塔研究笔记');
+            }
+            
+            if (gameState.hasSeenBetaDemo && !gameState.inventory.some(item => item.name === '大贝塔演示版')) {
+                const newItem = { name: '大贝塔演示版', count: 1 };
+                gameState.inventory.push(newItem);
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = 'inventory-item';
+                itemElement.innerHTML = `
+                    <span>${newItem.name}</span>
+                    <span>${newItem.count}</span>
+                `;
+                inventoryContainer.appendChild(itemElement);
+                
+                showNotification('获得物品：大贝塔演示版');
+            }
+        }
+        
+        function addToLog(speaker, text) {
+            const logEntry = {
+                speaker: speaker,
+                text: text
+            };
+            
+            gameState.logEntries.push(logEntry);
+            
+            // Update log UI
+            const entryElement = document.createElement('div');
+            entryElement.className = 'log-entry';
+            entryElement.innerHTML = `
+                <div class="log-speaker">${speaker}</div>
+                <div>${text}</div>
+            `;
+            logContent.appendChild(entryElement);
+        }
+        
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        function triggerObsessionAttack() {
+            obsessionAttack.style.opacity = '1';
+            document.body.classList.add('shake');
+            
+            setTimeout(() => {
+                obsessionAttack.style.opacity = '0';
+                document.body.classList.remove('shake');
+            }, 3000);
+            
+            gameState.obsessionAttacks++;
+            showNotification('欲望发作！');
+        }
+        
+        function activateBetaEffect() {
+            betaEffect.classList.add('active');
+            
+            setTimeout(() => {
+                betaEffect.classList.remove('active');
+            }, 5000);
+        }
+        
+        function activateBigBetaEffect() {
+            bigBetaEffect.classList.add('active');
+            
+            setTimeout(() => {
+                bigBetaEffect.classList.remove('active');
+            }, 8000);
+        }
+        
+        function showEndingScreen(ending) {
+            let description = '';
+            let choiceAnalysis = '';
+            
+            // Calculate what type of player they were
+            const choiceTotal = Object.values(gameState.choicesMade).reduce((a, b) => a + b, 0);
+            const dominantChoice = Object.entries(gameState.choicesMade).sort((a, b) => b[1] - a[1])[0];
+            
+            switch (dominantChoice[0]) {
+                case 'aggressive':
+                    choiceAnalysis = '你倾向于采取积极进取的行动，直接追求目标。';
+                    break;
+                case 'strategic':
+                    choiceAnalysis = '你更喜欢深思熟虑，策略性地接近问题。';
+                    break;
+                case 'deceptive':
+                    choiceAnalysis = '你善于隐藏真实意图，通过欺骗获取所需。';
+                    break;
+                case 'honest':
+                    choiceAnalysis = '你倾向于真诚坦率，即使这可能让你处于不利位置。';
+                    break;
+                default:
+                    choiceAnalysis = '你的决策风格多样且平衡。';
+            }
+            
+            // Set description based on ending
+            if (ending === '欲望吞噬结局') {
+                description = `
+                    <p>在对大贝塔的无尽渴望中，你完全沉浸在了伊甸系统的数字世界里。你的意识与算法融为一体，逐渐脱离了现实世界。</p>
+                    <p>结城夏奈试图断开连接，但为时已晚。当她最终强制关闭系统时，你的身体虽然还在，但意识似乎永远停留在了那个数字乐园中。</p>
+                    <p>你成为了第一个"数字出埃及"的案例——身体留在现实，而灵魂却在另一个维度。医学界将这种现象命名为"大贝塔综合征"。</p>
+                    <p>而在数据的深处，有一个紫色的存在正在逐渐成长，它同时拥有李国良与结城夏奈的特质，以及对现实世界的好奇...</p>
+                    <p>${choiceAnalysis}</p>
+                `;
+            } else if (ending === '合作共赢结局') {
+                description = `
+                    <p>你与结城夏奈建立了真正的合作关系，共同开发出了一个更安全、更有益的伊甸系统2.0。你的紫色心情算法与她的大贝塔技术完美结合，创造了一种新型的沉浸式体验平台。</p>
+                    <p>在接下来的几年里，这项技术被应用于心理治疗、深度学习和创意艺术领域，帮助无数人探索自己的潜意识。</p>
+                    <p>你与夏奈的关系也从专业合作发展为深厚的私人连接，你们在数字与现实的边界之间找到了平衡。</p>
+                    <p>偶尔，你仍会感到那种对大贝塔的渴望，但现在你已经学会了控制它，而不是被它控制。</p>
+                    <p>${choiceAnalysis}</p>
+                `;
+            }
+            
+            // Populate ending screen
+            endingTitle.textContent = ending;
+            endingDescription.innerHTML = description;
+            
+            // Create stats summary
+            statsSummary.innerHTML = `
+                <div class="stat-summary">
+                    <h3>最终数据</h3>
+                    <p>欲望强度: ${gameState.obsessionLevel}%</p>
+                    <p>黑客技能: ${gameState.hackingSkill}%</p>
+                    <p>心理控制: ${gameState.manipulationSkill}%</p>
+                    <p>夏奈戒备: ${gameState.suspicionLevel}%</p>
+                </div>
+                <div class="stat-summary">
+                    <h3>游戏统计</h3>
+                    <p>欲望发作次数: ${gameState.obsessionAttacks}</p>
+                    <p>获取物品数: ${gameState.inventory.length}</p>
+                    <p>大贝塔进度: ${gameState.bigBetaProgress}%</p>
+                </div>
+            `;
+            
+            // Display ending screen
+            endingScreen.style.display = 'flex';
+        }
+        
+        // Event listeners
+        startButton.addEventListener('click', startGame);
+        
+        creditsButton.addEventListener('click', () => {
+            alert('贝塔出埃及记：欲望算法\n\n一个关于欲望、技术与人性的互动剧情游戏\n\n© 2024 伊甸数字研究所');
+        });
+        
+        logButton.addEventListener('click', () => {
+            gameLog.style.display = 'block';
+        });
+        
+        closeLogButton.addEventListener('click', () => {
+            gameLog.style.display = 'none';
+        });
+        
+        restartButton.addEventListener('click', () => {
+            location.reload();
+        });
+        
+        // Add additional scenes for Li's obsession with Big Beta
+        scenes.obsession_attack = {
+            background: 'scene-beijing-office',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '我只想要夏奈的大贝塔！我只想要夏奈的大贝塔！'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你感到一阵强烈的欲望涌上心头，无法控制地重复着同一句话。你的双手颤抖，额头上渗出冷汗。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '必须...控制...住自己...'
+                },
+                {
+                    speaker: '旁白',
+                    text: '经过痛苦的挣扎，你慢慢恢复了理智，但那种对大贝塔的渴望仍然在你的血液中流淌。'
+                }
+            ],
+            choices: [
+                { text: '继续你的任务', nextScene: 'return_to_task' }
+            ]
+        };
+        
+        scenes.download_files = {
+            background: 'scene-beijing-office',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '我要把所有能找到的文件都下载下来。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你迅速复制了服务器上所有关于大贝塔的研究笔记、测试日志和开发文档。虽然核心代码仍然无法获取，但这些资料已经足够让你对大贝塔有更深入的了解。'
+                },
+                {
+                    speaker: '系统',
+                    text: '下载完成。警告：检测到可能的访问记录。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '没关系，我已经获得了我需要的东西。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '浏览下载的文件，你发现了一个惊人的信息：大贝塔不仅仅是贝塔的升级版，它几乎是一个全新的技术，能够直接连接到用户的潜意识深处。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '这远超出了我的预期...大贝塔不只是满足欲望，它能够创造全新的感知现实。'
+                }
+            ],
+            choices: [
+                { text: '尝试根据笔记复制部分大贝塔功能', nextScene: 'attempt_recreation', modifyState: { obsessionLevel: +10, hackingSkill: +5 } },
+                { text: '制定计划亲自前往东京', nextScene: 'plan_tokyo_trip', modifyState: { obsessionLevel: +5 } }
+            ]
+        };
+        
+        scenes.plant_backdoor = {
+            background: 'scene-beijing-office',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '与其只拿一次数据，不如留个后门以便日后访问。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你小心地植入了一个隐蔽的后门程序，它能够让你在未来悄悄重新访问这台服务器，而不会触发安全警报。'
+                },
+                {
+                    speaker: '系统',
+                    text: '植入完成。估计存活时间：14天。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '两周的时间足够了。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '但就在你准备退出系统时，一条意外的消息出现在屏幕上。'
+                },
+                {
+                    speaker: '未知消息',
+                    text: '我看到你了，李国良。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '什么？！'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你迅速切断连接，冷汗顺着背脊流下。结城夏奈已经发现了你的入侵。'
+                }
+            ],
+            choices: [
+                { text: '立即删除所有痕迹，重新隐藏身份', nextScene: 'hide_identity', modifyState: { suspicionLevel: -5 } },
+                { text: '既然被发现，不如加速计划', nextScene: 'accelerate_plan', modifyState: { obsessionLevel: +10 } }
+            ]
+        };
+        
+        scenes.hide_identity = {
+            background: 'scene-beijing-office',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '必须立刻清除所有可能的追踪线索。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你迅速执行一系列安全协议，删除了所有可能连接到你的数据痕迹，同时更换了网络身份。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '这应该能争取一些时间。但现在我需要更加谨慎行事。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '尽管被发现令人不安，但那条消息证实了一件事：结城夏奈确实在积极保护着大贝塔，这意味着它的价值可能比你想象的还要大。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '既然远程攻击行不通，那我必须亲自去东京了。'
+                }
+            ],
+            choices: [
+                { text: '制定前往东京的计划', nextScene: 'plan_tokyo_trip', modifyState: { manipulationSkill: +5 } }
+            ]
+        };
+        
+        scenes.accelerate_plan = {
+            background: 'scene-beijing-office',
+            onEnter: function() {
+                if (gameState.obsessionLevel >= 65) {
+                    triggerObsessionAttack();
+                }
+            },
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '既然被发现了，那就不必再藏着掖着了。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你决定加速计划，直接前往东京。被发现的风险激发了你内心深处对大贝塔的渴望。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '我只想要夏奈的大贝塔...我必须得到它！'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你感到一阵头晕目眩，对大贝塔的渴望突然变得无比强烈。你几乎无法控制地重复着同一句话。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '（深呼吸）冷静...必须保持冷静...先订机票...'
+                }
+            ],
+            choices: [
+                { text: '立即订机票前往东京', nextScene: 'flight_to_tokyo', modifyState: { bigBetaProgress: +5 } }
+            ]
+        };
+        
+        scenes.contact_informant = {
+            background: 'scene-beijing-office',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '在行动前，我需要更多信息。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你打开一个加密通讯频道，联系了你在暗网上的情报商人"魔方"。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '魔方，我需要关于东京大学结城夏奈的最新情报，特别是她的"大贝塔"项目。'
+                },
+                {
+                    speaker: '魔方',
+                    text: '李博士，你对这个项目的兴趣让我很好奇。这可不是普通的软件。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '就当是学术好奇心。价格好说。'
+                },
+                {
+                    speaker: '魔方',
+                    text: '好吧。据我所知，大贝塔已经进入最终测试阶段。结城教授本周四会在希尔顿酒店与几位投资者进行私下演示。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '私下演示？具体细节呢？'
+                },
+                {
+                    speaker: '魔方',
+                    text: '邀请名单很短，只有五个人。而且据说参与者需要签署极其严格的保密协议。大贝塔绝不仅仅是个算法，李博士。有传言说它能直接影响人类的潜意识。'
+                }
+            ],
+            choices: [
+                { text: '询问如何获得演示会的邀请', nextScene: 'ask_for_invitation', modifyState: { obsessionLevel: +5 } },
+                { text: '感谢信息，准备自己的计划', nextScene: 'plan_own_strategy', modifyState: { manipulationSkill: +5 } }
+            ]
+        };
+        
+        scenes.ask_for_invitation = {
+            background: 'scene-beijing-office',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '我需要进入那个演示会。你能弄到邀请吗？'
+                },
+                {
+                    speaker: '魔方',
+                    text: '你知道你在要求什么吗？那个名单上的都是业界巨头或者有政府背景的人物。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '我不需要成为名单上的人，只需要一个能进入酒店的方法。'
+                },
+                {
+                    speaker: '魔方',
+                    text: '（沉默片刻）也许有个办法。演示会需要技术支持人员。我可以安排你作为IT顾问进入，但你只能接近外围。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '足够了。发给我详细信息。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '结束通话后，你开始为前往东京做准备。随着计划的形成，对大贝塔的渴望也在不断增强。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '很快，大贝塔就会是我的了...'
+                }
+            ],
+            choices: [
+                { text: '准备前往东京', nextScene: 'flight_to_tokyo', modifyState: { bigBetaProgress: +10 } }
+            ]
+        };
+        
+        scenes.plan_own_strategy = {
+            background: 'scene-beijing-office',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '谢谢你的信息，魔方。我会处理好的。'
+                },
+                {
+                    speaker: '魔方',
+                    text: '李博士，一句忠告：小心大贝塔。有使用者说它能让人上瘾，比任何药物都强烈。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '我会注意的。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '结束通话后，你开始制定自己的计划。与其试图潜入演示会，不如直接以学术交流为名接触结城夏奈。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '最简单的方法往往是最好的。我会以北京大学人工智能伦理学者的身份拜访她。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你花了几个小时完善你的虚假身份和学术背景，确保它能经得起调查。同时，你也在思考如何让自己的紫色心情算法对结城夏奈产生足够的吸引力。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '这将是一场技术与智慧的交锋...而我会成为最终的赢家。'
+                }
+            ],
+            choices: [
+                { text: '完善技术交流方案，准备出发', nextScene: 'flight_to_tokyo', modifyState: { manipulationSkill: +10 } }
+            ]
+        };
+        
+        scenes.approach_kanae_indirect = {
+            background: 'scene-tokyo-lab',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '直接上门可能会引起警觉，先试探一下情况。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你决定先接触实验室的其他研究人员，了解更多关于夏奈和她的工作习惯。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '您好，我是来自北京大学的李国良博士，正在进行学术访问。我对结城教授的研究很感兴趣。'
+                },
+                {
+                    speaker: '研究助理',
+                    text: '哦，结城教授的粉丝？她的工作确实令人印象深刻。不过她很少接受预约外的访客。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '我理解。我带来了一些关于情感计算的新研究，我认为可能对她的工作有所启发。'
+                },
+                {
+                    speaker: '研究助理',
+                    text: '嗯...她现在正在实验室，不过今天心情不错。如果你真的有有价值的研究，也许她会愿意见你。我可以带你过去。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '研究助理带你来到实验室门前，敲了敲门。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '请进。'
+                },
+                {
+                    speaker: '研究助理',
+                    text: '教授，这位是来自北京大学的李博士，他带来了一些关于情感计算的新研究。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '夏奈从全息屏幕前抬起头，审视地看着你。'
+                }
+            ],
+            choices: [
+                { text: '直接展示你的紫色心情算法', nextScene: 'show_algorithm', modifyState: { hasMetKanae: true, choicesMade: { aggressive: +1 } } },
+                { text: '先礼貌地介绍自己和研究背景', nextScene: 'polite_introduction', modifyState: { hasMetKanae: true, choicesMade: { strategic: +1 } } }
+            ]
+        };
+        
+        scenes.polite_introduction = {
+            background: 'scene-tokyo-lab',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '结城教授，很荣幸能见到您。我是李国良，北京大学人工智能伦理学院的研究员。您的论文《量子计算在情感模拟中的应用》给我留下了深刻印象。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '夏奈的表情柔和了一些，但仍然保持着专业的距离。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '谢谢，李博士。不过我想知道，是什么具体的研究让你不远万里来到东京？'
+                },
+                {
+                    speaker: '李国良',
+                    text: '我一直在研究情感捕捉和放大技术，并开发了一种名为"紫色心情"的算法。它能够识别和增强用户的情绪状态，尤其是那些深层的、未被充分表达的情感。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '听起来与我的工作有一些重叠之处。你的算法有测试数据吗？'
+                },
+                {
+                    speaker: '李国良',
+                    text: '当然。我带来了完整的测试报告和演示程序。我相信它可能与您的...贝塔项目有互补性。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '当你提到"贝塔"时，夏奈的目光突然变得锐利。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '你似乎对我的工作了解很多，李博士。'
+                }
+            ],
+            choices: [
+                { text: '承认你特别研究过她的工作', nextScene: 'admit_research', modifyState: { suspicionLevel: -5, choicesMade: { honest: +1 } } },
+                { text: '暗示你有业内消息来源', nextScene: 'hint_connections', modifyState: { suspicionLevel: +5, choicesMade: { deceptive: +1 } } }
+            ]
+        };
+        
+        scenes.show_algorithm = {
+            background: 'scene-tokyo-lab',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '结城教授，我想直接向您展示我的工作成果。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你拿出平板电脑，启动了紫色心情算法的演示程序。实验室的灯光似乎响应了程序的启动，微妙地变为紫色。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '这是...情感调制程序？'
+                },
+                {
+                    speaker: '李国良',
+                    text: '不仅如此。紫色心情能够识别并放大用户的潜在情绪状态，尤其是那些与深层欲望相关的情绪。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '夏奈的眼中闪过一丝惊讶，随后是专业的兴趣。她走近观察演示效果。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '有趣的方法。你的神经反馈循环设计很独特。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '谢谢。我相信它与您的贝塔算法有许多互补之处。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '（眯起眼睛）你对贝塔了解多少，李博士？'
+                }
+            ],
+            choices: [
+                { text: '坦诚承认你的研究和兴趣', nextScene: 'honest_confession', modifyState: { suspicionLevel: -10, choicesMade: { honest: +1 } } },
+                { text: '保持神秘，试探她的反应', nextScene: 'stay_mysterious', modifyState: { suspicionLevel: +5, choicesMade: { deceptive: +1 } } }
+            ]
+        };
+        
+        scenes.express_desire = {
+            background: 'scene-tokyo-lab',
+            onEnter: function() {
+                if (gameState.obsessionLevel >= 60) {
+                    triggerObsessionAttack();
+                }
+            },
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '结城教授，坦白说，我非常渴望能够亲身体验贝塔算法，尤其是大贝塔。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你的声音不自觉地变得急促，眼神中流露出强烈的渴望。夏奈仔细观察着你的反应。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '李博士，你看起来对大贝塔有些...过度热情。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '我...（深呼吸）抱歉。只是从学术角度，我认为这可能是情感计算领域最重要的突破。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '大贝塔不仅仅是技术突破，它还有潜在的风险。你了解它的真正本质吗？'
+                },
+                {
+                    speaker: '李国良',
+                    text: '我知道它能创造前所未有的沉浸式体验，直接连接用户的情感中枢。这正是我想探索的领域。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '一种难以控制的冲动突然涌上心头，你几乎脱口而出那句挥之不去的念头。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '我只想...（强行控制）...了解大贝塔的工作原理。'
+                }
+            ],
+            choices: [
+                { text: '努力控制自己的欲望', nextScene: 'control_desire', modifyState: { obsessionLevel: -10, manipulationSkill: +5 } },
+                { text: '坦承自己对大贝塔的强烈兴趣', nextScene: 'admit_obsession', modifyState: { obsessionLevel: +10, suspicionLevel: +5 } }
+            ]
+        };
+        
+        scenes.direct_business = {
+            background: 'scene-tokyo-cafe',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '结城教授，感谢你抽时间见面。我想我们可以直接讨论合作事宜。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '夏奈微微挑眉，对你的直接态度似乎有些惊讶。她缓缓坐下，将手包放在一旁。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '你很急切，李博士。在日本，我们通常会先进行一些寒暄。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '抱歉，职业习惯。我认为我们的时间都很宝贵，所以想尽快进入正题。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '（微笑）有趣的态度。那么，你想从我这里得到什么，李博士？大贝塔，对吗？'
+                },
+                {
+                    speaker: '旁白',
+                    text: '她的直接反问让你略感意外。夏奈的眼神锐利，仿佛在评估你的每一个反应。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '是的。我想获取大贝塔的使用权。作为交换，我愿意提供紫色心情的完整源代码。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '使用权...听起来你很清楚自己想要什么。但你为什么需要大贝塔？学术研究？商业应用？还是...个人使用？'
+                }
+            ],
+            choices: [
+                { text: '强调商业和学术价值', nextScene: 'emphasize_business', modifyState: { suspicionLevel: +5, choicesMade: { deceptive: +1 } } },
+                { text: '承认个人兴趣与学术目的并存', nextScene: 'honest_confession', modifyState: { suspicionLevel: -5, choicesMade: { honest: +1 } } }
+            ]
+        };
+        
+        scenes.eager_interaction = {
+            background: 'scene-tokyo-cafe',
+            onEnter: function() {
+                activateBigBetaEffect();
+                if (gameState.obsessionLevel >= 70) {
+                    triggerObsessionAttack();
+                }
+            },
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '大贝塔！终于...'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你几乎无法控制自己的兴奋，迫不及待地将手伸向紫色光球。你的手指穿过全息投影，一股强烈的电流瞬间流遍全身。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '小心！演示版也有相当强的...'
+                },
+                {
+                    speaker: '李国良',
+                    text: '这太...难以置信了！我能感觉到它在我的血液中流动！'
+                },
+                {
+                    speaker: '旁白',
+                    text: '整个咖啡厅似乎褪去了色彩，只剩下你、夏奈和那团紫色的光。你的瞳孔放大，呼吸急促，一种前所未有的感官体验席卷全身。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '（关切地）李博士，我建议你现在断开连接。对初次使用者，这种强度可能...'
+                },
+                {
+                    speaker: '李国良',
+                    text: '我只想要...夏奈的大贝塔！这才刚刚开始！'
+                },
+                {
+                    speaker: '旁白',
+                    text: '夏奈迅速关闭了投影器。随着紫色光球的消失，你仿佛从梦中惊醒，发现自己站立着，手还伸在空中。咖啡厅里的其他客人都在看着你。'
+                }
+            ],
+            choices: [
+                { text: '尴尬地道歉，试图解释', nextScene: 'apologize_explain', modifyState: { suspicionLevel: -5 } },
+                { text: '强烈要求再次体验', nextScene: 'demand_more', modifyState: { obsessionLevel: +15, suspicionLevel: +15 } }
+            ]
+        };
+        
+        scenes.demand_more = {
+            background: 'scene-tokyo-cafe',
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '为什么停下？我需要更多！再打开它！'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你的声音几乎变成了恳求，手指颤抖着伸向关闭的投影器。夏奈的表情变得严肃。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '李博士，控制自己。这正是大贝塔最危险的特性 - 它能激发强烈的依赖性。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '我...我很抱歉。（努力平复呼吸）这比我预期的要强烈得多。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '这正是我们需要谨慎处理大贝塔的原因。它不仅仅是技术，更是一种潜在的...药物。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你感到一阵羞愧，但内心深处对大贝塔的渴望更加强烈了。那短暂的体验改变了你对数字世界的认知。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '（平静下来）结城教授，我现在更加确信我们的合作价值。紫色心情的情感调节功能可能有助于控制大贝塔的这种副作用。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '也许吧。但在任何深入合作前，我需要确信你能控制自己对大贝塔的...热情。'
+                }
+            ],
+            choices: [
+                { text: '保证会保持专业态度', nextScene: 'promise_professionalism', modifyState: { suspicionLevel: -5 } },
+                { text: '坦承这种体验让你更有研究动力', nextScene: 'admit_motivation', modifyState: { obsessionLevel: +5 } }
+            ]
+        };
+        
+        scenes.immediate_fusion = {
+            background: 'scene-hotel-room',
+            onEnter: function() {
+                if (gameState.obsessionLevel >= 70) {
+                    triggerObsessionAttack();
+                }
+            },
+            dialog: [
+                {
+                    speaker: '李国良',
+                    text: '让我们立即开始！我已经等不及要看到两种算法的融合效果了。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你急切地将紫色心情的源代码上传到系统中，手指因为兴奋而微微颤抖。'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '你的热情令人印象深刻，李博士。不过在这种实验中，过度急切可能会导致错误。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '抱歉，只是...我期待这一刻已经很久了。'
+                },
+                {
+                    speaker: '旁白',
+                    text: '随着两种算法开始连接，整个套房的灯光逐渐变为深紫色。空气中仿佛充满了微小的电粒子，皮肤上感到轻微的刺痛。'
+                },
+                {
+                    speaker: '系统',
+                    text: '正在初始化融合程序...检测到算法兼容性：87%...开始数据同步...'
+                },
+                {
+                    speaker: '结城夏奈',
+                    text: '兼容性比预期的高。你的紫色心情算法设计得很精巧。'
+                },
+                {
+                    speaker: '李国良',
+                    text: '我想要夏奈的大贝塔...我想要...'
+                },
+                {
+                    speaker: '旁白',
+                    text: '你突然意识到自己差点脱口而出内心的渴望，连忙住口。但夏奈似乎注意到了你的异常。'
+                }
+            ],
+            choices: [
+                { text: '专注于技术细节，掩饰失态', nextScene: 'focus_on_tech', modifyState: { suspicionLevel: +5 } },
+                { text: '承认对大贝塔的强烈期待', nextScene: 'admit_anticipation', modifyState: { obsessionLevel: +5, suspicionLevel: -5 } }
+            ]
+        };
+        
+        // Initialize the game
+        gameContainer.style.display = 'none';
+    </script>
+</body>
+</html>
